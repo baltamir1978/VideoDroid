@@ -23,15 +23,32 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ContainedLoadingIndicator
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.FilledTonalIconButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.LoadingIndicator
+import androidx.compose.material3.SplitButtonDefaults
+import androidx.compose.material3.SplitButtonLayout
+import androidx.compose.material3.Surface
+import androidx.compose.material3.TextField
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.painterResource
+import es.altamirano.linvideo.R
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -60,25 +77,35 @@ fun SearchScreen(model: SearchViewModel, onPreview: (SearchResult) -> Unit) {
     val state by model.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val focus = LocalFocusManager.current
+    val (query, setQuery) = rememberFieldText(state.query, model::setQuery)
 
     LazyColumn(
         Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
+        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 24.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         item {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Dropdown(state.scope, SCOPES, ::scopeLabel, model::setScope, Modifier.fillMaxWidth())
-                OutlinedTextField(
-                    value = state.query,
-                    onValueChange = model::setQuery,
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                TextField(
+                    value = query,
+                    onValueChange = setQuery,
                     placeholder = { Text("Buscar vídeos o audio") },
                     singleLine = true,
+                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                     keyboardActions = KeyboardActions(onSearch = { focus.clearFocus(); model.run() }),
-                    trailingIcon = { TextButton(onClick = { focus.clearFocus(); model.run() }) { Text("Buscar") } },
+                    trailingIcon = {
+                        Button(
+                            onClick = { focus.clearFocus(); model.run() },
+                            shapes = ButtonDefaults.shapes(),
+                            modifier = Modifier.padding(end = 6.dp),
+                        ) { Text("Buscar") }
+                    },
+                    shape = CircleShape,
+                    colors = fieldColors(),
                     modifier = Modifier.fillMaxWidth(),
                 )
+                Dropdown(state.scope, SCOPES, ::scopeLabel, model::setScope, Modifier.fillMaxWidth(), title = "Dónde")
             }
         }
         val messages = buildList {
@@ -88,14 +115,18 @@ fun SearchScreen(model: SearchViewModel, onPreview: (SearchResult) -> Unit) {
         when {
             state.searched.isEmpty() -> item { Hint(state.scope) }
             state.results.isEmpty() && state.loading -> item {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    CircularProgressIndicator(Modifier.size(24.dp))
-                    Text("Buscando «${state.searched}» en ${state.scope.title}…")
+                Column(
+                    Modifier.fillMaxWidth().padding(top = 48.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                ) {
+                    ContainedLoadingIndicator(Modifier.size(64.dp))
+                    Text("Buscando «${state.searched}» en ${state.scope.title}…", style = MaterialTheme.typography.bodyLarge)
                 }
             }
             state.results.isEmpty() -> item {
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Text("Sin resultados", style = MaterialTheme.typography.titleMedium)
+                Column(Modifier.padding(top = 16.dp, start = 4.dp, end = 4.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text("Sin resultados", style = MaterialTheme.typography.titleLargeEmphasized)
                     Text(
                         if (state.failures.isNotEmpty()) messages.joinToString("\n")
                         else "Nada para «${state.searched}» en ${state.scope.title}. Prueba con otras palabras.",
@@ -104,7 +135,7 @@ fun SearchScreen(model: SearchViewModel, onPreview: (SearchResult) -> Unit) {
             }
         }
         if (messages.isNotEmpty() && state.results.isNotEmpty()) {
-            item { Text(messages.joinToString("\n"), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+            item { Text(messages.joinToString("\n"), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(horizontal = 4.dp)) }
         }
         items(state.results, key = { it.source.value + it.pageUrl }) { result ->
             ResultCard(
@@ -115,13 +146,14 @@ fun SearchScreen(model: SearchViewModel, onPreview: (SearchResult) -> Unit) {
                 },
                 onPreview = { onPreview(result) },
                 onBrowser = { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(result.pageUrl))) },
+                modifier = Modifier.animateItem(),
             )
         }
         if (state.results.isNotEmpty() && (state.canLoadMore || state.loading)) {
             item {
                 Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                    if (state.loading) CircularProgressIndicator(Modifier.size(24.dp))
-                    else OutlinedButton(onClick = model::loadMore) { Text("Más resultados") }
+                    if (state.loading) LoadingIndicator(Modifier.size(48.dp))
+                    else FilledTonalButton(onClick = model::loadMore, shapes = ButtonDefaults.shapes()) { Text("Más resultados") }
                 }
             }
         }
@@ -137,8 +169,8 @@ private fun Hint(scope: SearchScope) {
             "Se consulta a la vez: ${scope.sources.joinToString(", ") { it.title }}. " +
             "Los resultados se mezclan para que ninguna web acapare la lista."
     }
-    Column(Modifier.padding(top = 16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        Text(title, style = MaterialTheme.typography.titleMedium)
+    Column(Modifier.padding(top = 24.dp, start = 4.dp, end = 4.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(title, style = MaterialTheme.typography.headlineSmallEmphasized)
         Text(text, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
@@ -150,15 +182,16 @@ private fun ResultCard(
     onDownload: (MediaKind) -> Unit,
     onPreview: () -> Unit,
     onBrowser: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     var menu by remember { mutableStateOf(false) }
     val preferred = result.source.preferredKind
-    Card(Modifier.fillMaxWidth()) {
-        Column(Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    Surface(color = MaterialTheme.colorScheme.surfaceContainer, shape = RoundedCornerShape(24.dp), modifier = modifier.fillMaxWidth()) {
+        Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 Box(
-                    Modifier.width(144.dp).height(81.dp).clip(RoundedCornerShape(8.dp))
-                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                    Modifier.width(144.dp).height(81.dp).clip(RoundedCornerShape(16.dp))
+                        .background(MaterialTheme.colorScheme.surfaceContainerHighest)
                         .clickable(onClick = onPreview),
                 ) {
                     if (result.thumbnailUrl != null) {
@@ -170,8 +203,8 @@ private fun ResultCard(
                     result.durationText?.let {
                         Text(
                             it, color = Color.White, style = MaterialTheme.typography.labelSmall,
-                            modifier = Modifier.align(Alignment.BottomEnd).padding(4.dp)
-                                .background(Color(0xB0000000), RoundedCornerShape(4.dp)).padding(horizontal = 4.dp),
+                            modifier = Modifier.align(Alignment.BottomEnd).padding(6.dp)
+                                .background(Color(0xB0000000), RoundedCornerShape(6.dp)).padding(horizontal = 5.dp, vertical = 1.dp),
                         )
                     }
                 }
@@ -187,9 +220,25 @@ private fun ResultCard(
                 }
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Button(onClick = { onDownload(preferred) }) { Text(preferred.shortTitle) }
                 Box {
-                    TextButton(onClick = { menu = true }) { Text("Otro ▾") }
+                    SplitButtonLayout(
+                        leadingButton = {
+                            SplitButtonDefaults.LeadingButton(onClick = { onDownload(preferred) }) {
+                                Icon(painterResource(R.drawable.ic_tab_download), contentDescription = null, modifier = Modifier.size(SplitButtonDefaults.LeadingIconSize))
+                                Spacer(Modifier.width(ButtonDefaults.IconSpacing))
+                                Text(preferred.shortTitle)
+                            }
+                        },
+                        trailingButton = {
+                            SplitButtonDefaults.TrailingButton(checked = menu, onCheckedChange = { menu = it }) {
+                                val turn by animateFloatAsState(if (menu) 180f else 0f, MaterialTheme.motionScheme.fastSpatialSpec(), label = "flecha")
+                                Icon(
+                                    Icons.Default.KeyboardArrowDown, contentDescription = "Otro formato",
+                                    modifier = Modifier.size(SplitButtonDefaults.TrailingIconSize).graphicsLayer { rotationZ = turn },
+                                )
+                            }
+                        },
+                    )
                     DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
                         MediaKind.entries.forEach { kind ->
                             DropdownMenuItem(text = { Text(kind.title) }, onClick = { menu = false; onDownload(kind) })
@@ -197,8 +246,12 @@ private fun ResultCard(
                     }
                 }
                 Spacer(Modifier.weight(1f))
-                TextButton(onClick = onPreview) { Text("Ver") }
-                TextButton(onClick = onBrowser) { Text("Web") }
+                FilledTonalIconButton(onClick = onPreview, shapes = IconButtonDefaults.shapes()) {
+                    Icon(Icons.Default.PlayArrow, contentDescription = "Ver")
+                }
+                IconButton(onClick = onBrowser, shapes = IconButtonDefaults.shapes()) {
+                    Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = "Abrir en la web")
+                }
             }
         }
     }

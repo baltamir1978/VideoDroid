@@ -4,7 +4,7 @@ import es.altamirano.linvideo.model.FilenameCleanup
 
 /**
  * Convierte el título que da la web en un nombre de archivo presentable (`filenames.py`).
- * Se aplica renombrando el archivo ya descargado. Las expresiones llevan `(?U)` para que `\w`,
+ * Se aplica renombrando el archivo ya descargado. Las expresiones van con `uRegex` para que `\w`,
  * `\s`, `\b` y las mayúsculas se comporten con Unicode, como en Python.
  */
 object Filenames {
@@ -22,10 +22,10 @@ object Filenames {
 
     private class Filler(word: String) {
         private val e = Regex.escape(word)
-        val bracketed = Regex("""(?iU)\s*[\[(]\s*$e\s*[\])]""")
-        val separated = Regex("""(?iU)\s*[-–—|·]\s*$e\s*(?=$|[-–—|·])""")
-        val anywhere = Regex("""(?iU)\b$e\b""")
-        val trailing = Regex("""(?iU)\s*[-–—|·]?\s*$e\s*$""")
+        val bracketed = uRegex(ignoreCase = true, pattern = """\s*[\[(]\s*$e\s*[\])]""")
+        val separated = uRegex(ignoreCase = true, pattern = """\s*[-–—|·]\s*$e\s*(?=$|[-–—|·])""")
+        val anywhere = uRegex(ignoreCase = true, pattern = """\b$e\b""")
+        val trailing = uRegex(ignoreCase = true, pattern = """\s*[-–—|·]?\s*$e\s*$""")
     }
 
     private val FILLERS = FILLER_WORDS.map(::Filler)
@@ -90,11 +90,11 @@ object Filenames {
         return out.toString()
     }
 
-    private val HASHTAG = Regex("""(?U)#\w+""")
+    private val HASHTAG = uRegex("""#\w+""")
     fun removeHashtags(name: String) = HASHTAG.replace(name, " ")
 
-    private val URL = Regex("""(?iU)\bhttps?://\S+""")
-    private val DOMAIN = Regex("""(?iU)\b(?:www\.)?[a-z0-9\-]{3,}\.(?:com|net|org|tv|xxx|es|to|cc|me)\b(?:/\S*)?""")
+    private val URL = uRegex(ignoreCase = true, pattern = """\bhttps?://\S+""")
+    private val DOMAIN = uRegex(ignoreCase = true, pattern = """\b(?:www\.)?[a-z0-9\-]{3,}\.(?:com|net|org|tv|xxx|es|to|cc|me)\b(?:/\S*)?""")
     fun removeWebAddresses(name: String) = DOMAIN.replace(URL.replace(name, " "), " ")
 
     private val PARENS = Regex("""\([^()]*\)""")
@@ -129,11 +129,11 @@ object Filenames {
     }
 
     private val EMPTY_BRACKETS = Regex("""[\[(]\s*[\])]""")
-    private val SPACES = Regex("""(?U)\s+""")
-    private val REPEATED_SEP = Regex("""(?U)\s*([-–—|·])\s*\1+""")
-    private val LEADING = Regex("""(?U)^[\s\-–—|·,.]+""")
-    private val TRAILING = Regex("""(?U)[\s\-–—|·,.]+$""")
-    private val SPACE_BEFORE_PUNCT = Regex("""(?U)\s+([,;.!?])""")
+    private val SPACES = uRegex("""\s+""")
+    private val REPEATED_SEP = uRegex("""\s*([-–—|·])\s*\1+""")
+    private val LEADING = uRegex("""^[\s\-–—|·,.]+""")
+    private val TRAILING = uRegex("""[\s\-–—|·,.]+$""")
+    private val SPACE_BEFORE_PUNCT = uRegex("""\s+([,;.!?])""")
 
     /** Espacios y guiones repetidos, y paréntesis que se han quedado vacíos. */
     fun collapseSeparators(name: String): String {

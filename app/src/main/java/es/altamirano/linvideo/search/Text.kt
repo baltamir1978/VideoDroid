@@ -1,5 +1,6 @@
 package es.altamirano.linvideo.search
 
+import es.altamirano.linvideo.engine.uRegex
 import java.text.Normalizer
 
 /** Utilidades de texto de `search.py`. */
@@ -72,7 +73,7 @@ object Text {
         return (value * multiplier).toLong()
     }
 
-    private val DURATION_PAIRS = Regex("""(?U)([0-9]+)\s*(h|min|sec|s)\b""")
+    private val DURATION_PAIRS = uRegex("""([0-9]+)\s*(h|min|sec|s)\b""")
 
     /** «32 min», «1 h 5 min», «12 sec» o «mm:ss» en segundos. */
     fun parseLooseDuration(text: String): Double? {

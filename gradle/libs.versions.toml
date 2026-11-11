@@ -1,9 +1,10 @@
 [versions]
-agp = "8.7.3"
-kotlin = "2.1.0"
+agp = "9.5.1"
+kotlin = "2.3.21"
 coreKtx = "1.15.0"
-activityCompose = "1.9.3"
-composeBom = "2024.12.01"
+activityCompose = "1.12.0"
+composeBom = "2026.09.00"
+material3 = "1.5.0-rc01"
 lifecycle = "2.8.7"
 coroutines = "1.9.0"
 ytdl = "0.18.1"
@@ -23,7 +24,8 @@ compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeB
 compose-ui = { module = "androidx.compose.ui:ui" }
 compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
-compose-material3 = { module = "androidx.compose.material3:material3" }
+compose-material3 = { module = "androidx.compose.material3:material3", version.ref = "material3" }
+compose-material-icons = { module = "androidx.compose.material:material-icons-core", version = "1.7.8" }
 coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
 ytdl-library = { module = "io.github.junkfood02.youtubedl-android:library", version.ref = "ytdl" }
 ytdl-ffmpeg = { module = "io.github.junkfood02.youtubedl-android:ffmpeg", version.ref = "ytdl" }
@@ -38,6 +40,5 @@ junit = { module = "junit:junit", version.ref = "junit" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }

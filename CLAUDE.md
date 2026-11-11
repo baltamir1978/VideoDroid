@@ -10,29 +10,45 @@ Android. Ante cualquier duda, leer el módulo de Python equivalente (tabla del p
 
 ## Estado (11-nov-2026)
 
-**0.1.0: las fases 0–8 del plan, escritas y compiladas. Nada probado en el móvil** (no había
-ninguno conectado a `adb`). APK firmado en `~/Documentos/LinVideo-0.1.0.apk` (83 MB, sólo arm64).
+**0.2.0, probada por primera vez en el móvil** (Pixel 11 Pro, Android 17, por `adb`). APK firmado en
+`~/Documentos/LinVideo-0.2.0.apk`.
 
-Comprobado sin móvil:
-- 129 pruebas JVM (`./gradlew testDebugUnitTest`): las de LinVideo portadas (argumentos, errores,
-  nombres, cola, ajustes, formatos, vista previa, lectores de búsqueda con los mismos fragmentos
-  HTML) y alguna más.
-- `Tools/probar-ytdlp.sh`: los argumentos de verdad contra **el yt-dlp que trae la librería**
-  (2025.11.12), con el Python y el ffmpeg del equipo, sobre un vídeo servido por HTTP. Pasan las
-  cinco modalidades y el recorte.
-- Búsquedas reales (`LINVIDEO_LIVE=1 ./gradlew testDebugUnitTest --tests '*LiveSearchTest*'`):
-  16 de 17 webs devuelven resultados. **Reddit responde 403** a todo (también a LinVideo y a curl
-  desde este equipo): lo ha cerrado Reddit, no es la traducción. YouTube y SoundCloud van por
-  yt-dlp y sólo se pueden probar en el móvil.
+Funciona en el móvil:
+- yt-dlp arranca; descarga de YouTube completa y con el nombre limpio («Me at the zoo.mp4»).
+- Búsqueda en YouTube (por yt-dlp) y en «Para adultos» (llegan resultados de 11 webs).
+
+Arreglado al probar:
+- **Android no admite `(?U)`** en las expresiones (ICU): la app se cerraba al renombrar al final de
+  cada descarga y fallaban las búsquedas. Ahora `engine/URegex.kt` (`uRegex`) pone la bandera sólo
+  en la JVM; en Android `\w`, `\s` y `\b` ya son Unicode. **No escribir `(?U)` a mano.**
+- El campo Enlace tenía autocorrección: el teclado metía espacios tras los puntos.
+- Los campos perdían letras al escribir deprisa (el valor vuelve del `StateFlow` un fotograma
+  tarde). `rememberFieldText` (`ui/Common.kt`) mantiene el texto en el campo; usarlo en todo campo
+  ligado a un ViewModel.
+
+Interfaz: **Material 3 Expressive** (`MaterialExpressiveTheme`, `LargeFlexibleTopAppBar`,
+`ShortNavigationBar` con insignia, `SplitButtonLayout`, `LoadingIndicator`, barras onduladas,
+ajustes en grupos segmentados). Para eso VideoDroid **va por delante de los demás `*Droid`**:
+AGP 9.5.1 (Kotlin integrado: sin plugin `kotlin-android` ni `kotlinOptions`), Gradle 9.9.1,
+Kotlin 2.3.21, compileSdk 37, targetSdk 36, BOM 2026.09.00 + material3 1.5.0-rc01, iconos de
+`material-icons-core`. Las APIs experimentales se aceptan para todo el módulo en `app/build.gradle.kts`.
 
 Pendiente de probar en el móvil (criterios del plan, §6):
-- Fase 0: que yt-dlp arranque, descargue de YouTube (con QuickJS para el reto de JS) y que
-  «Actualizar ahora» funcione.
+- «Actualizar ahora» de yt-dlp.
 - Fase 2: 3 descargas con 2 simultáneas, cancelar, reintentar, matar la app y recuperar.
 - Fase 3: «Compartir → LinVideo» desde YouTube; cambiar el tipo desde la notificación.
 - Fase 4: GIF en el móvil (en el equipo, sí).
 - Fase 6: vista previa de YouTube (HLS) y de alguna web con MP4.
 - Que el `MediaScanner` haga aparecer los archivos en la galería.
+- **Reddit responde 403** a todo (también a LinVideo y a curl): lo ha cerrado Reddit.
+
+Comprobado sin móvil: 129 pruebas JVM (`./gradlew testDebugUnitTest`), `Tools/probar-ytdlp.sh`
+(argumentos contra el yt-dlp de la librería) y búsquedas reales
+(`LINVIDEO_LIVE=1 ./gradlew testDebugUnitTest --tests '*LiveSearchTest*'`).
+
+**Probar con `adb`**: `adb shell svc power stayon usb` para que no se bloquee; el desbloqueo es con
+huella (lo hace el usuario). `adb shell input text` escribe muy deprisa: sirve para detectar
+letras perdidas. Cuidado con `KEYCODE_BACK` sin teclado abierto: saca de la app.
 
 ## Diferencias con LinVideo (decididas aquí)
 
@@ -67,7 +83,7 @@ Pendiente de probar en el móvil (criterios del plan, §6):
 
 ## Compilar
 
-Entorno en `~/Android` (el de los demás `*Droid`). Después:
+Entorno en `~/Android` (el de los demás `*Droid`, más la plataforma 37 y build-tools 37). Después:
 `./gradlew testDebugUnitTest assembleRelease` →
 `app/build/outputs/apk/release/app-release.apk` y `adb install -r …`.
 

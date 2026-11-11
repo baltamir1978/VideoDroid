@@ -7,8 +7,9 @@ Versión para Android de [LinVideo](https://github.com/baltamir1978/LinVideo), l
 es un port línea a línea: se escribe en Kotlin con LinVideo como especificación, mismos
 comportamientos y mismos textos. El plan está en `LinVideo-Android.md`.
 
-**Estado: 0.1.0** (11-nov-2026): todo escrito y compilado, con las pruebas de LinVideo portadas y
-en verde. **Todavía sin probar en el móvil.** Ver `CLAUDE.md`.
+**Estado: 0.2.0** (11-nov-2026): probada en un Pixel con Android 17. Descargas de YouTube y
+búsquedas (también la de YouTube y las de adultos) funcionando. Interfaz en **Material 3
+Expressive**, con los colores del fondo de pantalla. Lo que queda por probar está en `CLAUDE.md`.
 
 ## Qué hace
 
@@ -34,7 +35,8 @@ en verde. **Todavía sin probar en el móvil.** Ver `CLAUDE.md`.
 
 ## Compilar
 
-Android 11 o posterior, arm64. Con el JDK 17 y el SDK 35:
+Android 11 o posterior, arm64. Con el JDK 17 y el SDK 37 (AGP 9.5, Gradle 9.9, Kotlin 2.3; la
+interfaz usa material3 1.5, que pide compileSdk 37):
 
 ```sh
 ./gradlew testDebugUnitTest assembleRelease

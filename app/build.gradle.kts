@@ -2,21 +2,20 @@ import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
 }
 
 android {
     namespace = "es.altamirano.linvideo"
-    compileSdk = 35
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "es.altamirano.linvideo"
         minSdk = 30          // Android 11: almacenamiento acotado, sin el «legacy»
-        targetSdk = 35
-        versionCode = 1
-        versionName = "0.1.0"
+        targetSdk = 36
+        versionCode = 2
+        versionName = "0.2.0"
         // yt-dlp, Python y FFmpeg van como binarios nativos: sólo arm64 para que el APK no pese el doble.
         ndk { abiFilters += "arm64-v8a" }
     }
@@ -47,7 +46,7 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions { jvmTarget = "17" }
+
     buildFeatures { compose = true }
 }
 
@@ -60,6 +59,7 @@ dependencies {
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.tooling.preview)
     implementation(libs.compose.material3)
+    implementation(libs.compose.material.icons)
     debugImplementation(libs.compose.ui.tooling)
     implementation(libs.coroutines.android)
     implementation(libs.serialization.json)
@@ -72,4 +72,14 @@ dependencies {
     implementation(libs.ytdl.library)
     implementation(libs.ytdl.ffmpeg)
     testImplementation(libs.junit)
+}
+
+kotlin {
+    compilerOptions {
+        optIn.addAll(
+            "androidx.compose.material3.ExperimentalMaterial3Api",
+            "androidx.compose.material3.ExperimentalMaterial3ExpressiveApi",
+            "androidx.compose.foundation.layout.ExperimentalLayoutApi",
+        )
+    }
 }

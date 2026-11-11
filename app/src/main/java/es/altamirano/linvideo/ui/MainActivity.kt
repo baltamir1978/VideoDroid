@@ -9,17 +9,22 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.LargeFlexibleTopAppBar
+import androidx.compose.material3.ShortNavigationBar
+import androidx.compose.material3.ShortNavigationBarItem
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -27,9 +32,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import es.altamirano.linvideo.LinVideoApp
@@ -57,9 +60,7 @@ class MainActivity : ComponentActivity() {
             askNotifications.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
         setContent {
-            val context = LocalContext.current
-            val colors = if (isSystemInDarkTheme()) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-            MaterialTheme(colorScheme = colors) { App(downloads, searches) }
+            LinVideoTheme { App(downloads, searches) }
         }
     }
 
@@ -81,25 +82,48 @@ private fun App(downloads: DownloadViewModel, searches: SearchViewModel) {
     val recoverable by hub.recoverable.collectAsStateWithLifecycle()
     val items by hub.items.collectAsStateWithLifecycle()
 
+    val summary by hub.summary.collectAsStateWithLifecycle()
+    val bar = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    val active = items.count { !it.state.finished }
+
     Scaffold(
+        modifier = Modifier.nestedScroll(bar.nestedScrollConnection),
+        topBar = {
+            LargeFlexibleTopAppBar(
+                title = { Text(if (tab == Tab.DOWNLOAD) "LinVideo" else tab.title) },
+                subtitle = when {
+                    tab == Tab.DOWNLOAD && summary.active -> { { Text("Descargando ${summary.done} de ${summary.total}") } }
+                    else -> null
+                },
+                scrollBehavior = bar,
+            )
+        },
         bottomBar = {
-            NavigationBar {
+            ShortNavigationBar {
                 Tab.entries.forEach { t ->
-                    NavigationBarItem(
+                    ShortNavigationBarItem(
                         selected = tab == t,
-                        onClick = { tab = t },
-                        icon = { Icon(painterResource(t.icon), contentDescription = null) },
-                        label = {
-                            val active = items.count { !it.state.finished }
-                            Text(if (t == Tab.DOWNLOAD && active > 0) "${t.title} ($active)" else t.title)
+                        onClick = { tab = t; bar.state.heightOffset = 0f },
+                        icon = {
+                            BadgedBox(badge = { if (t == Tab.DOWNLOAD && active > 0) Badge { Text("$active") } }) {
+                                Icon(painterResource(t.icon), contentDescription = null)
+                            }
                         },
+                        label = { Text(t.title) },
                     )
                 }
             }
         },
     ) { padding ->
-        Box(Modifier.padding(padding)) {
-            when (tab) {
+        val enter = MaterialTheme.motionScheme.defaultEffectsSpec<Float>()
+        val exit = MaterialTheme.motionScheme.fastEffectsSpec<Float>()
+        AnimatedContent(
+            targetState = tab,
+            transitionSpec = { fadeIn(enter) togetherWith fadeOut(exit) },
+            modifier = Modifier.padding(padding),
+            label = "pestaña",
+        ) { shown ->
+            when (shown) {
                 Tab.DOWNLOAD -> DownloadScreen(downloads, onFormats = { formatsFor = extractUrls(downloads.form.value.url).firstOrNull() })
                 Tab.SEARCH -> SearchScreen(searches, onPreview = { previewing = it })
                 Tab.SETTINGS -> SettingsScreen()

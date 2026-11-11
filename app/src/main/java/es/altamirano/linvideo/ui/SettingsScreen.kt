@@ -10,16 +10,35 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.FilledTonalIconButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.LoadingIndicator
+import androidx.compose.material3.Surface
+import androidx.compose.material3.SwitchDefaults
+import androidx.compose.material3.TextField
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -78,93 +97,123 @@ fun SettingsScreen() {
         }
     }
 
-    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(vertical = 8.dp)) {
-        Group("Descargas")
-        EntryRow("Carpeta dentro de Descargas", s.destination, Storage.DEFAULT_FOLDER) { v -> set { it.copy(destination = v) } }
-        Caption("Se guarda en ${Storage.downloadDirectory(s.destination).absolutePath}")
-        ChoiceRow("Formato por omisión", s.kind, MediaKind.entries, { it.title }) { v -> set { it.copy(kind = v) } }
-        ChoiceRow("Techo de resolución", o.resolution, VideoResolution.entries, { it.title }) { v -> opt { it.copy(resolution = v) } }
-        StepRow("Descargas simultáneas", s.maxConcurrent, 1, 8) { v -> set { it.copy(maxConcurrent = v) } }
-        SwitchRow("Descargar la lista completa", "Si el enlace es una lista de reproducción, bajarla entera", o.downloadPlaylist) { v ->
-            opt { it.copy(downloadPlaylist = v) }
+    val cookiesLoaded = o.cookiesFile.isNotEmpty() && File(o.cookiesFile).exists()
+    Column(
+        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(start = 16.dp, end = 16.dp, bottom = 24.dp),
+        verticalArrangement = Arrangement.spacedBy(20.dp),
+    ) {
+        Group("Descargas") {
+            row { EntryRow("Carpeta dentro de Descargas", s.destination, Storage.DEFAULT_FOLDER,
+                "Se guarda en ${Storage.downloadDirectory(s.destination).absolutePath}") { v -> set { it.copy(destination = v) } } }
+            row { ChoiceRow("Formato por omisión", s.kind, MediaKind.entries, { it.title }) { v -> set { it.copy(kind = v) } } }
+            row { ChoiceRow("Techo de resolución", o.resolution, VideoResolution.entries, { it.title }) { v -> opt { it.copy(resolution = v) } } }
+            row { StepRow("Descargas simultáneas", s.maxConcurrent, 1, 8) { v -> set { it.copy(maxConcurrent = v) } } }
+            row { SwitchRow("Descargar la lista completa", "Si el enlace es una lista de reproducción, bajarla entera", o.downloadPlaylist) { v ->
+                opt { it.copy(downloadPlaylist = v) } } }
+            row { SwitchRow("Ofrecer el enlace copiado", "Al volver a la app con un enlace en el portapapeles", s.watchClipboard) { v ->
+                set { it.copy(watchClipboard = v) } } }
         }
-        SwitchRow("Ofrecer el enlace copiado", "Al volver a la app con un enlace en el portapapeles", s.watchClipboard) { v ->
-            set { it.copy(watchClipboard = v) }
+
+        Group("Nombre del archivo") {
+            row { ChoiceRow("Limpieza del nombre", o.filenameCleanup, FilenameCleanup.entries, { it.title }, o.filenameCleanup.help) { v ->
+                opt { it.copy(filenameCleanup = v) } } }
+            row { SwitchRow("Conservar el identificador", "Deja el [id] del vídeo al final del nombre", o.keepIdentifier) { v -> opt { it.copy(keepIdentifier = v) } } }
         }
 
-        Group("Nombre del archivo")
-        ChoiceRow("Limpieza del nombre", o.filenameCleanup, FilenameCleanup.entries, { it.title }) { v -> opt { it.copy(filenameCleanup = v) } }
-        Caption(o.filenameCleanup.help)
-        SwitchRow("Conservar el identificador", "Deja el [id] del vídeo al final del nombre", o.keepIdentifier) { v -> opt { it.copy(keepIdentifier = v) } }
-
-        Group("Contenido")
-        SwitchRow("Metadatos", "Título, artista, fecha y descripción", o.embedMetadata) { v -> opt { it.copy(embedMetadata = v) } }
-        SwitchRow("Artista y título a partir del nombre", "En audio, si el vídeo se llama «Artista - Título»", o.smartAudioTags) { v ->
-            opt { it.copy(smartAudioTags = v) }
+        Group("Contenido") {
+            row { SwitchRow("Metadatos", "Título, artista, fecha y descripción", o.embedMetadata) { v -> opt { it.copy(embedMetadata = v) } } }
+            row { SwitchRow("Artista y título a partir del nombre", "En audio, si el vídeo se llama «Artista - Título»", o.smartAudioTags) { v ->
+                opt { it.copy(smartAudioTags = v) } } }
+            row { SwitchRow("Portada en el audio", "La miniatura, recortada en cuadrado", o.embedThumbnail) { v -> opt { it.copy(embedThumbnail = v) } } }
+            row { SwitchRow("Subtítulos en el vídeo", "Español e inglés, si los hay", o.embedSubtitles) { v -> opt { it.copy(embedSubtitles = v) } } }
         }
-        SwitchRow("Portada en el audio", "La miniatura, recortada en cuadrado", o.embedThumbnail) { v -> opt { it.copy(embedThumbnail = v) } }
-        SwitchRow("Subtítulos en el vídeo", "Español e inglés, si los hay", o.embedSubtitles) { v -> opt { it.copy(embedSubtitles = v) } }
 
-        Group("GIF")
-        StepRow("Fotogramas por segundo", o.gifFps, 1, 50) { v -> opt { it.copy(gifFps = v) } }
-        StepRow("Ancho en píxeles", o.gifWidth, 64, 1920, step = 16) { v -> opt { it.copy(gifWidth = v) } }
-
-        Group("Red")
-        Caption(
-            "Las cookies sirven para las webs que piden confirmar la edad o iniciar sesión. En Android no se " +
-                "pueden leer las del navegador: exporta un cookies.txt (formato Netscape) desde un navegador " +
-                "donde tengas la sesión abierta e impórtalo aquí. Se queda dentro de la app.",
-        )
-        Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-            Column(Modifier.weight(1f)) {
-                Text("Cookies", style = MaterialTheme.typography.bodyLarge)
-                Text(
-                    if (o.cookiesFile.isNotEmpty() && File(o.cookiesFile).exists()) "cookies.txt importado" else "Sin cookies",
-                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-            TextButton(onClick = { importCookies.launch(arrayOf("text/*", "application/octet-stream")) }) { Text("Importar…") }
-            if (o.cookiesFile.isNotEmpty()) {
-                TextButton(onClick = { File(o.cookiesFile).delete(); opt { it.copy(cookiesFile = "") } }) { Text("Quitar") }
-            }
+        Group("GIF") {
+            row { StepRow("Fotogramas por segundo", o.gifFps, 1, 50) { v -> opt { it.copy(gifFps = v) } } }
+            row { StepRow("Ancho en píxeles", o.gifWidth, 64, 1920, step = 16) { v -> opt { it.copy(gifWidth = v) } } }
         }
-        EntryRow("Límite de velocidad", o.speedLimit, "Sin límite (ej.: 2M, 500K)") { v -> opt { it.copy(speedLimit = v) } }
-        StepRow("Fragmentos simultáneos", o.concurrentFragments, 1, 16) { v -> opt { it.copy(concurrentFragments = v) } }
-        EntryRow("Opciones extra de yt-dlp", o.extraArguments, "Se respetan las comillas") { v -> opt { it.copy(extraArguments = v) } }
 
-        Group("Herramientas")
-        Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-            Column(Modifier.weight(1f)) {
-                Text("yt-dlp", style = MaterialTheme.typography.bodyLarge)
-                Text(
-                    when (val e = engine) {
-                        Engine.Status.Starting -> "Preparando…"
-                        is Engine.Status.Ready -> if (updating) "Descargando la última versión…" else e.version ?: "versión desconocida"
-                        is Engine.Status.Failed -> "No arrancó: ${e.message}"
+        Group("Red") {
+            row {
+                ListItem(
+                    headlineContent = { Text("Cookies") },
+                    supportingContent = {
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Text(if (cookiesLoaded) "cookies.txt importado" else "Sin cookies", fontWeight = FontWeight.Medium)
+                            Text(
+                                "Las cookies sirven para las webs que piden confirmar la edad o iniciar sesión. En Android no se " +
+                                    "pueden leer las del navegador: exporta un cookies.txt (formato Netscape) desde un navegador " +
+                                    "donde tengas la sesión abierta e impórtalo aquí. Se queda dentro de la app.",
+                            )
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                FilledTonalButton(
+                                    onClick = { importCookies.launch(arrayOf("text/*", "application/octet-stream")) },
+                                    shapes = ButtonDefaults.shapes(),
+                                ) { Text("Importar…") }
+                                if (o.cookiesFile.isNotEmpty()) {
+                                    TextButton(
+                                        onClick = { File(o.cookiesFile).delete(); opt { it.copy(cookiesFile = "") } },
+                                        shapes = ButtonDefaults.shapes(),
+                                    ) { Text("Quitar") }
+                                }
+                            }
+                        }
                     },
-                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    colors = rowColors(),
                 )
             }
-            TextButton(
-                enabled = engine is Engine.Status.Ready && !updating,
-                onClick = {
-                    updating = true
-                    scope.launch {
-                        val message = Engine.update()
-                        if (!message.startsWith("No se pudo")) set { it.copy(lastUpdateCheck = System.currentTimeMillis()) }
-                        updating = false
-                        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
-                    }
-                },
-            ) { Text("Actualizar ahora") }
+            row { EntryRow("Límite de velocidad", o.speedLimit, "Sin límite (ej.: 2M, 500K)") { v -> opt { it.copy(speedLimit = v) } } }
+            row { StepRow("Fragmentos simultáneos", o.concurrentFragments, 1, 16) { v -> opt { it.copy(concurrentFragments = v) } } }
+            row { EntryRow("Opciones extra de yt-dlp", o.extraArguments, "Se respetan las comillas") { v -> opt { it.copy(extraArguments = v) } } }
         }
-        SwitchRow("Actualizar yt-dlp solo", "Como mucho una comprobación al día, al abrir", s.autoUpdate) { v -> set { it.copy(autoUpdate = v) } }
 
-        Group("Acerca de")
-        Text(
-            "Aviso legal", style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.fillMaxWidth().clickable { showLegal = true }.padding(horizontal = 16.dp, vertical = 12.dp),
-        )
+        Group("Herramientas") {
+            row {
+                ListItem(
+                    headlineContent = { Text("yt-dlp") },
+                    supportingContent = {
+                        Text(
+                            when (val e = engine) {
+                                Engine.Status.Starting -> "Preparando…"
+                                is Engine.Status.Ready -> if (updating) "Descargando la última versión…" else e.version ?: "versión desconocida"
+                                is Engine.Status.Failed -> "No arrancó: ${e.message}"
+                            },
+                        )
+                    },
+                    trailingContent = {
+                        if (updating) {
+                            LoadingIndicator(Modifier.size(40.dp))
+                        } else {
+                            FilledTonalButton(
+                                enabled = engine is Engine.Status.Ready,
+                                shapes = ButtonDefaults.shapes(),
+                                onClick = {
+                                    updating = true
+                                    scope.launch {
+                                        val message = Engine.update()
+                                        if (!message.startsWith("No se pudo")) set { it.copy(lastUpdateCheck = System.currentTimeMillis()) }
+                                        updating = false
+                                        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+                                    }
+                                },
+                            ) { Text("Actualizar ahora") }
+                        }
+                    },
+                    colors = rowColors(),
+                )
+            }
+            row { SwitchRow("Actualizar yt-dlp solo", "Como mucho una comprobación al día, al abrir", s.autoUpdate) { v -> set { it.copy(autoUpdate = v) } } }
+        }
+
+        Group("Acerca de") {
+            row {
+                ListItem(
+                    headlineContent = { Text("Aviso legal") },
+                    colors = rowColors(),
+                    modifier = Modifier.clickable { showLegal = true },
+                )
+            }
+        }
     }
 
     if (showLegal) LegalDialog(firstTime = false) { showLegal = false }
@@ -194,71 +243,117 @@ fun LegalDialog(firstTime: Boolean, onAccept: () -> Unit) {
 
 // --- Filas ---------------------------------------------------------------------------
 
-@Composable
-private fun Group(title: String) {
-    HorizontalDivider(Modifier.padding(top = 12.dp))
-    Text(title, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary,
-        modifier = Modifier.padding(start = 16.dp, top = 12.dp, bottom = 4.dp))
+private class GroupScope {
+    val rows = mutableListOf<@Composable () -> Unit>()
+    fun row(content: @Composable () -> Unit) { rows += content }
 }
 
+/** Grupo de filas al estilo de los ajustes de Android: bloques separados, esquinas grandes en los extremos. */
 @Composable
-private fun Caption(text: String) {
-    Text(text, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.padding(horizontal = 16.dp, vertical = 2.dp))
-}
-
-@Composable
-private fun SwitchRow(title: String, subtitle: String, value: Boolean, onChange: (Boolean) -> Unit) {
-    Row(
-        Modifier.fillMaxWidth().clickable { onChange(!value) }.padding(horizontal = 16.dp, vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Column(Modifier.weight(1f)) {
-            Text(title, style = MaterialTheme.typography.bodyLarge)
-            Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+private fun Group(title: String, build: GroupScope.() -> Unit) {
+    val rows = GroupScope().apply(build).rows
+    Column {
+        SectionTitle(title)
+        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            rows.forEachIndexed { index, content ->
+                val big = 24.dp
+                val small = 4.dp
+                val shape = RoundedCornerShape(
+                    topStart = if (index == 0) big else small, topEnd = if (index == 0) big else small,
+                    bottomStart = if (index == rows.lastIndex) big else small, bottomEnd = if (index == rows.lastIndex) big else small,
+                )
+                Surface(color = MaterialTheme.colorScheme.surfaceContainer, shape = shape, modifier = Modifier.fillMaxWidth()) {
+                    content()
+                }
+            }
         }
-        Switch(checked = value, onCheckedChange = onChange)
     }
 }
 
 @Composable
-private fun <T> ChoiceRow(title: String, value: T, options: List<T>, label: (T) -> String, onChange: (T) -> Unit) {
-    Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-        Text(title, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
-        Dropdown(value, options, label, onChange, Modifier.widthIn(max = 220.dp))
+private fun rowColors() = ListItemDefaults.colors(containerColor = Color.Transparent)
+
+@Composable
+private fun SwitchRow(title: String, subtitle: String, value: Boolean, onChange: (Boolean) -> Unit) {
+    ListItem(
+        headlineContent = { Text(title) },
+        supportingContent = { Text(subtitle) },
+        trailingContent = {
+            Switch(
+                checked = value, onCheckedChange = onChange,
+                thumbContent = if (value) { { Icon(Icons.Default.Check, contentDescription = null, Modifier.size(SwitchDefaults.IconSize)) } } else null,
+            )
+        },
+        colors = rowColors(),
+        modifier = Modifier.toggleable(value = value, role = Role.Switch, onValueChange = onChange),
+    )
+}
+
+@Composable
+private fun <T> ChoiceRow(title: String, value: T, options: List<T>, label: (T) -> String, help: String? = null, onChange: (T) -> Unit) {
+    Column(Modifier.padding(horizontal = 16.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Dropdown(value, options, label, onChange, Modifier.fillMaxWidth(), title = title)
+        help?.let {
+            Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(horizontal = 16.dp))
+        }
     }
 }
 
 @Composable
 private fun StepRow(title: String, value: Int, low: Int, high: Int, step: Int = 1, onChange: (Int) -> Unit) {
-    Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 2.dp), verticalAlignment = Alignment.CenterVertically) {
-        Text(title, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
-        TextButton(onClick = { onChange((value - step).coerceIn(low, high)) }, enabled = value > low) { Text("−") }
-        Text("$value", style = MaterialTheme.typography.bodyLarge)
-        TextButton(onClick = { onChange((value + step).coerceIn(low, high)) }, enabled = value < high) { Text("+") }
-    }
+    ListItem(
+        headlineContent = { Text(title) },
+        trailingContent = {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                FilledTonalIconButton(
+                    onClick = { onChange((value - step).coerceIn(low, high)) }, enabled = value > low,
+                    shapes = IconButtonDefaults.shapes(),
+                ) { Text("−", style = MaterialTheme.typography.titleLarge) }
+                Text("$value", style = MaterialTheme.typography.titleMediumEmphasized, textAlign = TextAlign.Center,
+                    modifier = Modifier.widthIn(min = 40.dp))
+                FilledTonalIconButton(
+                    onClick = { onChange((value + step).coerceIn(low, high)) }, enabled = value < high,
+                    shapes = IconButtonDefaults.shapes(),
+                ) { Text("+", style = MaterialTheme.typography.titleLarge) }
+            }
+        },
+        colors = rowColors(),
+    )
 }
 
 /** Texto que se guarda al pulsar «Guardar», como el EntryRow con botón de aplicar. */
 @Composable
-private fun EntryRow(title: String, value: String, hint: String, onSave: (String) -> Unit) {
+private fun EntryRow(title: String, value: String, hint: String, caption: String? = null, onSave: (String) -> Unit) {
     var text by remember(value) { mutableStateOf(value) }
     val context = LocalContext.current
-    OutlinedTextField(
-        value = text,
-        onValueChange = { text = it },
-        label = { Text(title) },
-        placeholder = { Text(hint) },
-        singleLine = true,
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii),
-        trailingIcon = {
-            if (text.trim() != value) {
-                TextButton(onClick = {
-                    onSave(text.trim())
-                    Toast.makeText(context, "Guardado", Toast.LENGTH_SHORT).show()
-                }) { Text("Guardar") }
-            }
-        },
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
-    )
+    Column(Modifier.padding(horizontal = 16.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        TextField(
+            value = text,
+            onValueChange = { text = it },
+            label = { Text(title) },
+            placeholder = { Text(hint) },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii, autoCorrectEnabled = false),
+            trailingIcon = {
+                if (text.trim() != value) {
+                    Button(
+                        onClick = {
+                            onSave(text.trim())
+                            Toast.makeText(context, "Guardado", Toast.LENGTH_SHORT).show()
+                        },
+                        shapes = ButtonDefaults.shapes(),
+                        modifier = Modifier.padding(end = 6.dp),
+                    ) { Text("Guardar") }
+                }
+            },
+            shape = FieldShape,
+            colors = fieldColors(),
+            modifier = Modifier.fillMaxWidth(),
+        )
+        caption?.let {
+            Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(horizontal = 16.dp))
+        }
+    }
 }

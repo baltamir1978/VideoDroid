@@ -6,9 +6,28 @@ import android.content.Intent
 import android.webkit.MimeTypeMap
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.LinearWavyProgressIndicator
+import androidx.compose.material3.Surface
+import androidx.compose.ui.Alignment
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -16,8 +35,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Card
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -33,13 +50,24 @@ import es.altamirano.linvideo.queue.JobState
 import es.altamirano.linvideo.queue.QueueHub
 import java.io.File
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun QueueCard(item: ItemSnapshot, hub: QueueHub, onLog: () -> Unit) {
+fun QueueCard(item: ItemSnapshot, hub: QueueHub, onLog: () -> Unit, modifier: Modifier = Modifier) {
     val context = LocalContext.current
-    Card(Modifier.fillMaxWidth()) {
-        Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            Text(item.displayTitle, style = MaterialTheme.typography.titleSmall, maxLines = 2, overflow = TextOverflow.Ellipsis)
+    val failed = item.state == JobState.FAILED
+    Surface(
+        color = if (failed) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.surfaceContainer,
+        shape = RoundedCornerShape(24.dp),
+        modifier = modifier.fillMaxWidth(),
+    ) {
+        Column(
+            Modifier.padding(start = 16.dp, end = 8.dp, top = 14.dp, bottom = 8.dp)
+                .animateContentSize(MaterialTheme.motionScheme.defaultSpatialSpec()),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            Text(
+                item.displayTitle, style = MaterialTheme.typography.titleMedium, maxLines = 2, overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(end = 8.dp),
+            )
             val status = when (item.state) {
                 JobState.RUNNING -> item.stage.ifEmpty {
                     listOf(item.size, item.speed, item.eta.takeIf { it.isNotEmpty() }?.let { "quedan $it" }.orEmpty())
@@ -50,33 +78,48 @@ fun QueueCard(item: ItemSnapshot, hub: QueueHub, onLog: () -> Unit) {
             }
             Text(
                 "${item.kind.shortTitle} · $status",
-                style = MaterialTheme.typography.bodySmall,
-                color = if (item.state == JobState.FAILED) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.bodyMedium,
+                color = if (failed) MaterialTheme.colorScheme.onErrorContainer else MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(end = 8.dp),
             )
             if (item.state == JobState.RUNNING) {
+                val bar = Modifier.fillMaxWidth().padding(end = 8.dp, top = 4.dp)
                 if (item.fraction >= 0 && item.stage.isEmpty()) {
-                    LinearProgressIndicator(progress = { item.fraction.toFloat() }, modifier = Modifier.fillMaxWidth())
+                    LinearWavyProgressIndicator(progress = { item.fraction.toFloat() }, modifier = bar)
                 } else {
-                    LinearProgressIndicator(Modifier.fillMaxWidth())
+                    LinearWavyProgressIndicator(bar)
                 }
             }
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                 when (item.state) {
                     JobState.WAITING, JobState.RUNNING ->
-                        TextButton(onClick = { hub.cancel(item.id) }) { Text("Cancelar") }
-                    JobState.FAILED, JobState.CANCELLED -> {
-                        TextButton(onClick = { hub.retry(item.id) }) { Text("Reintentar") }
-                        TextButton(onClick = { hub.remove(item.id) }) { Text("Quitar") }
-                    }
-                    JobState.DONE -> {
-                        item.files.lastOrNull()?.let { file ->
-                            TextButton(onClick = { openFile(context, file) }) { Text("Abrir") }
-                            TextButton(onClick = { shareFiles(context, item.files) }) { Text("Compartir") }
+                        FilledTonalButton(onClick = { hub.cancel(item.id) }, shapes = ButtonDefaults.shapes()) { Text("Cancelar") }
+                    JobState.FAILED, JobState.CANCELLED ->
+                        Button(onClick = { hub.retry(item.id) }, shapes = ButtonDefaults.shapes()) {
+                            Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
+                            Spacer(Modifier.width(ButtonDefaults.IconSpacing))
+                            Text("Reintentar")
                         }
-                        TextButton(onClick = { hub.remove(item.id) }) { Text("Quitar") }
+                    JobState.DONE -> item.files.lastOrNull()?.let { file ->
+                        Button(onClick = { openFile(context, file) }, shapes = ButtonDefaults.shapes()) {
+                            Icon(Icons.Default.PlayArrow, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
+                            Spacer(Modifier.width(ButtonDefaults.IconSpacing))
+                            Text("Abrir")
+                        }
+                        IconButton(onClick = { shareFiles(context, item.files) }, shapes = IconButtonDefaults.shapes()) {
+                            Icon(Icons.Default.Share, contentDescription = "Compartir")
+                        }
                     }
                 }
-                TextButton(onClick = onLog) { Text("Ver registro") }
+                Spacer(Modifier.weight(1f))
+                IconButton(onClick = onLog, shapes = IconButtonDefaults.shapes()) {
+                    Icon(Icons.AutoMirrored.Filled.List, contentDescription = "Ver registro")
+                }
+                if (item.state.finished) {
+                    IconButton(onClick = { hub.remove(item.id) }, shapes = IconButtonDefaults.shapes()) {
+                        Icon(Icons.Default.Close, contentDescription = "Quitar")
+                    }
+                }
             }
         }
     }

@@ -1,0 +1,57 @@
+# VideoDroid
+
+En el móvil se llama **LinVideo**. Descarga vídeo y audio de YouTube y de cientos de webs más, con
+yt-dlp y FFmpeg dentro de la app, y busca en 19 webs a la vez.
+
+Versión para Android de [LinVideo](https://github.com/baltamir1978/LinVideo), la app de Linux. No
+es un port línea a línea: se escribe en Kotlin con LinVideo como especificación, mismos
+comportamientos y mismos textos. El plan está en `LinVideo-Android.md`.
+
+**Estado: 0.1.0** (11-nov-2026): todo escrito y compilado, con las pruebas de LinVideo portadas y
+en verde. **Todavía sin probar en el móvil.** Ver `CLAUDE.md`.
+
+## Qué hace
+
+- **Cinco modalidades**: vídeo a la máxima calidad, vídeo compatible (H.264 + AAC), MP3 con
+  etiquetas y portada, audio original y **GIF** con paleta propia.
+- Techo de resolución, **recorte** por tiempo y **«Formatos…»** para elegir a mano lo que ofrece
+  la web.
+- **Cola** con descargas simultáneas, en segundo plano con una notificación del lote y «Cancelar
+  todo». Reintentar, abrir, compartir y ver el registro de cada una.
+- Si la app se cierra a medias, al volver ofrece **recuperar** lo pendiente, con una casilla por
+  descarga. Lo que se cancela se reanuda donde se quedó.
+- **Compartir → LinVideo** desde cualquier app, y enlaces `linvideo:https://…`. Entra en la cola
+  con el tipo por defecto, y desde la notificación se puede cambiar.
+- Aviso al volver a la app con un **enlace copiado**.
+- **Buscador**: YouTube, Dailymotion, PeerTube, Archive.org, Reddit, SoundCloud, Mixcloud y doce
+  webs para adultos. Una web, una categoría o todas, con los resultados mezclados por rondas.
+  Miniaturas, duración, visitas y **vista previa** sin descargar.
+- Nombres de archivo limpios (sin identificador, emojis, «Official Video»…), metadatos,
+  subtítulos, límite de velocidad, `cookies.txt` y opciones extra de yt-dlp.
+- yt-dlp se **actualiza solo** una vez al día, o a mano desde Ajustes.
+- Guarda en `Download/LinVideo` (o la subcarpeta que se elija), sin pedir permisos, y los archivos
+  aparecen en la galería y en la app de música.
+
+## Compilar
+
+Android 11 o posterior, arm64. Con el JDK 17 y el SDK 35:
+
+```sh
+./gradlew testDebugUnitTest assembleRelease
+adb install -r app/build/outputs/apk/release/app-release.apk
+```
+
+La release se firma con una clave que vive fuera del repositorio (ver `CLAUDE.md`); sin ella sale
+sin firmar. `Tools/probar-ytdlp.sh` prueba los argumentos de yt-dlp en el ordenador, sin móvil.
+
+## Aviso
+
+Pensada para uso personal. Quien la usa es responsable de lo que descarga: los derechos de autor y
+las condiciones de cada web siguen valiendo. Las webs para adultos, sólo para mayores de edad. Sin
+afiliación con ninguna de las webs a las que se conecta. El texto completo sale al abrir la app
+por primera vez.
+
+## Licencia
+
+Usa [youtubedl-android](https://github.com/yausername/youtubedl-android) (GPL-3.0), que trae yt-dlp,
+Python, FFmpeg y QuickJS.

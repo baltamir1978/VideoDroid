@@ -10,9 +10,10 @@ Android. Ante cualquier duda, leer el módulo de Python equivalente (tabla del p
 
 ## Estado (13-nov-2026)
 
-**0.2.2 (13-nov-2026): afinar la búsqueda.** Hecha en el servidor (`plex`), como la 0.2.1: **no
-hay APK**; hay que compilarla y firmarla en el portátil (`git pull` antes). Sin probar en el
-móvil ni en el emulador (el APK sólo trae librerías arm64).
+**0.2.2 (13-nov-2026): afinar la búsqueda.** Hecha en el servidor (`plex`), como la 0.2.1, sin la clave de
+firma. El mismo día se compiló y firmó en el portátil (pasan pruebas y lint): APK en
+`~/Documentos/LinVideo-0.2.2.apk`, con el mismo certificado que la 0.2.0. **Sin probar en el
+móvil**; en el emulador no se instala (el APK sólo trae librerías arm64).
 - Las webs devuelven lo que quieren cuando hay varias palabras, y casi ninguna admite comillas ni
   exclusiones. Ahora se afina **en el móvil, sobre lo ya cargado** (`search/Refine.kt`, lógica
   pura con `RefineTest`), igual para las 19 webs:
@@ -131,7 +132,7 @@ Entorno en `~/Android` (el de los demás `*Droid`, más la plataforma 37 y build
 
 **Firma de release**: `~/.android/claves/linvideo-release.jks`, datos en
 `~/.android/claves/linvideo-release.properties` (lo lee `app/build.gradle.kts`). Fuera del repo,
-**sólo en el portátil** y sin copia (en `plex` no está: allí la release sale sin firmar): **si se pierde, no se puede actualizar la app instalada**. Huella SHA-256:
+**sólo en el portátil**, con copia en `~/Documentos/ClavesAndroid` desde el 13-nov-2026 (en `plex` no está instalada: allí la release sale sin firmar): **si se pierde, no se puede actualizar la app instalada**. Huella SHA-256:
 `4F:B1:6E:E7:B7:67:70:D8:6F:11:0B:FB:5F:C4:4C:18:E1:BC:72:50:7F:97:EE:83:48:A7:71:88:7F:56:A5:36`.
 
 **Al diagnosticar una web de búsqueda «rota»**: probar antes con una búsqueda corriente

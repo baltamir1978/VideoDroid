@@ -10,8 +10,28 @@ Android. Ante cualquier duda, leer el módulo de Python equivalente (tabla del p
 
 ## Estado (13-nov-2026)
 
+**0.2.2 (13-nov-2026): afinar la búsqueda.** Hecha en el servidor (`plex`), como la 0.2.1: **no
+hay APK**; hay que compilarla y firmarla en el portátil (`git pull` antes). Sin probar en el
+móvil ni en el emulador (el APK sólo trae librerías arm64).
+- Las webs devuelven lo que quieren cuando hay varias palabras, y casi ninguna admite comillas ni
+  exclusiones. Ahora se afina **en el móvil, sobre lo ya cargado** (`search/Refine.kt`, lógica
+  pura con `RefineTest`), igual para las 19 webs:
+  - `"frase exacta"` y `-palabra` en la consulta valen siempre.
+  - «Todas las palabras»: exige las de la consulta en el título o el autor. Sin tildes pero con
+    ñ, y casando por el principio de la palabra («gato» con «gatos», no con «alegato»).
+  - Corto / Medio / Largo, con los cortes de YouTube (4 y 20 min). Con el filtro puesto, lo que
+    no trae duración se esconde.
+  - «Orden»: como llegan, más vistos, más largos, más cortos; lo que no trae el dato, al final.
+- Como sólo se filtra lo cargado, la pantalla dice cuántos esconde el filtro («Se muestran 3 de
+  24 cargados») para que «Más resultados» tenga sentido. Los filtros no se guardan entre arranques.
+- **Qué se manda a cada web** (`Search.search`): YouTube, Archive y Reddit
+  (`SearchSource.understandsOperators`) reciben la consulta tal cual, con comillas, `-palabra` y
+  sus operadores (`intitle:`, `year:`…); las demás, sólo las palabras que se buscan
+  (`ParsedQuery.plain`), porque los signos les estropeaban la búsqueda.
+- Esto **no está en LinVideo** (ver «Diferencias»). 138 pruebas, 0 errores de lint.
+
 **0.2.1 (13-nov-2026), revisada en el servidor (`plex`), sin móvil y sin la clave de firma: no hay
-APK de esta versión.** Hay que compilarla y firmarla en el portátil (`git pull` antes).
+APK de esta versión.**
 - **Un enlace `linvideo:` pregunta antes de descargar** (`ShareActivity`): el filtro es
   `BROWSABLE`, así que cualquier página web podía encolar una descarga sin que nadie la pidiera.
   «Compartir → LinVideo» sigue entrando directo. El diálogo es de Android, no de Compose: la
@@ -62,7 +82,7 @@ Pendiente de probar en el móvil (criterios del plan, §6):
 - Que el `MediaScanner` haga aparecer los archivos en la galería.
 - **Reddit responde 403** a todo (también a LinVideo y a curl): lo ha cerrado Reddit.
 
-Comprobado sin móvil: 129 pruebas JVM (`./gradlew testDebugUnitTest`), `Tools/probar-ytdlp.sh`
+Comprobado sin móvil: 138 pruebas JVM (`./gradlew testDebugUnitTest`), `Tools/probar-ytdlp.sh`
 (argumentos contra el yt-dlp de la librería) y búsquedas reales
 (`LINVIDEO_LIVE=1 ./gradlew testDebugUnitTest --tests '*LiveSearchTest*'`).
 
@@ -85,6 +105,7 @@ letras perdidas. Cuidado con `KEYCODE_BACK` sin teclado abierto: saca de la app.
   sigue guardado aunque se añadan descargas nuevas.
 - **TNAFlix**: el primer resultado lleva la miniatura en `src`, no en `data-src`; aquí se lee
   (LinVideo la deja en blanco).
+- **Afinar la búsqueda** (filtros, orden, comillas y exclusiones; 0.2.2): sólo existe aquí.
 - Sin R8: casi todo el peso son binarios nativos y la librería usa Jackson por reflexión.
 
 ## Cómo está hecho
@@ -96,6 +117,7 @@ letras perdidas. Cuidado con `KEYCODE_BACK` sin teclado abierto: saca de la app.
 - `service/`: `DownloadService` (`dataSync`, notificación del lote con «Cancelar todo», wake lock
   parcial) y la notificación de «Compartir» con botones para cambiar el tipo.
 - `search/`: un fichero por familia de webs; misma mezcla por rondas que `search_many`.
+  `Refine` filtra y ordena lo cargado; `SearchState.visible` es lo que se enseña.
 - `ui/`: pestañas Descargar · Buscar · Ajustes, «Formatos…», vista previa (ExoPlayer),
   recuperar descargas, aviso legal al primer arranque, `ShareActivity` (`ACTION_SEND` y
   `linvideo:`).

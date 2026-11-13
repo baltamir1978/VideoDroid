@@ -17,6 +17,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material3.FilterChip
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -67,6 +70,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import es.altamirano.linvideo.model.MediaKind
+import es.altamirano.linvideo.search.Refinement
+import es.altamirano.linvideo.search.SearchLength
+import es.altamirano.linvideo.search.SearchOrder
 import es.altamirano.linvideo.search.SearchResult
 import es.altamirano.linvideo.search.SearchScope
 
@@ -105,7 +111,14 @@ fun SearchScreen(model: SearchViewModel, onPreview: (SearchResult) -> Unit) {
                     colors = fieldColors(),
                     modifier = Modifier.fillMaxWidth(),
                 )
-                Dropdown(state.scope, SCOPES, ::scopeLabel, model::setScope, Modifier.fillMaxWidth(), title = "Dónde")
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Dropdown(state.scope, SCOPES, ::scopeLabel, model::setScope, Modifier.weight(1f), title = "Dónde")
+                    Dropdown(
+                        state.refinement.order, SearchOrder.entries, { it.title },
+                        { model.setRefinement(state.refinement.copy(order = it)) }, Modifier.weight(1f), title = "Orden",
+                    )
+                }
+                Filters(state.refinement, model::setRefinement)
             }
         }
         val messages = buildList {
@@ -134,10 +147,22 @@ fun SearchScreen(model: SearchViewModel, onPreview: (SearchResult) -> Unit) {
                 }
             }
         }
+        // El filtro sólo ve lo ya cargado: decir cuánto esconde, para que «Más resultados» tenga sentido.
+        val hidden = state.results.size - state.visible.size
+        if (hidden > 0) {
+            item {
+                Text(
+                    if (state.visible.isEmpty()) "Ninguno de los ${state.results.size} resultados cargados pasa el filtro."
+                    else "Se muestran ${state.visible.size} de ${state.results.size} cargados; el resto no pasa el filtro.",
+                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(horizontal = 4.dp),
+                )
+            }
+        }
         if (messages.isNotEmpty() && state.results.isNotEmpty()) {
             item { Text(messages.joinToString("\n"), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(horizontal = 4.dp)) }
         }
-        items(state.results, key = { it.source.value + it.pageUrl }) { result ->
+        items(state.visible, key = { it.source.value + it.pageUrl }) { result ->
             ResultCard(
                 result, showSource = state.scope.isMulti,
                 onDownload = { kind ->
@@ -161,6 +186,25 @@ fun SearchScreen(model: SearchViewModel, onPreview: (SearchResult) -> Unit) {
 }
 
 @Composable
+private fun Filters(refinement: Refinement, onChange: (Refinement) -> Unit) {
+    Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        FilterChip(
+            selected = refinement.allWords,
+            onClick = { onChange(refinement.copy(allWords = !refinement.allWords)) },
+            label = { Text("Todas las palabras") },
+        )
+        SearchLength.entries.forEach { length ->
+            FilterChip(
+                selected = refinement.length == length,
+                // Tocar el que está puesto lo quita.
+                onClick = { onChange(refinement.copy(length = length.takeIf { refinement.length != it })) },
+                label = { Text(length.title) },
+            )
+        }
+    }
+}
+
+@Composable
 private fun Hint(scope: SearchScope) {
     val (title, text) = if (scope.source != null) {
         "Buscar en ${scope.source.title}" to scope.source.hint
@@ -172,6 +216,12 @@ private fun Hint(scope: SearchScope) {
     Column(Modifier.padding(top = 24.dp, start = 4.dp, end = 4.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(title, style = MaterialTheme.typography.headlineSmallEmphasized)
         Text(text, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(
+            "Para afinar: \"frase exacta\" entre comillas y -palabra para quitar lo que la lleve. " +
+                "«Todas las palabras» exige las de la búsqueda en el título o el autor; " +
+                "Corto es menos de 4 minutos y Largo, más de 20.",
+            style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
     }
 }
 

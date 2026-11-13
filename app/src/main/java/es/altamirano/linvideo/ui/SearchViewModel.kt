@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import es.altamirano.linvideo.LinVideoApp
 import es.altamirano.linvideo.model.MediaKind
 import es.altamirano.linvideo.search.FederatedResults
+import es.altamirano.linvideo.search.Refine
+import es.altamirano.linvideo.search.Refinement
 import es.altamirano.linvideo.search.Search
 import es.altamirano.linvideo.search.SearchCategory
 import es.altamirano.linvideo.search.SearchResult
@@ -38,7 +40,11 @@ data class SearchState(
     val failures: List<Pair<SearchSource, String>> = emptyList(),
     val page: Int = 1,
     val canLoadMore: Boolean = false,
-)
+    val refinement: Refinement = Refinement(),
+) {
+    /** Lo que se enseña: [results] pasado por el filtro y el orden. Se calcula una vez por estado. */
+    val visible: List<SearchResult> by lazy { Refine.apply(results, Refine.parse(searched), refinement) }
+}
 
 class SearchViewModel : ViewModel() {
     private val hub = LinVideoApp.instance.hub
@@ -53,6 +59,9 @@ class SearchViewModel : ViewModel() {
         _state.update { it.copy(scope = scope) }
         if (_state.value.searched.isNotEmpty()) run()
     }
+
+    /** No vuelve a buscar: se aplica a lo que ya hay. */
+    fun setRefinement(refinement: Refinement) = _state.update { it.copy(refinement = refinement) }
 
     fun run() {
         val query = _state.value.query.trim()

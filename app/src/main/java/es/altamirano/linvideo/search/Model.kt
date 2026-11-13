@@ -57,6 +57,9 @@ enum class SearchSource(val value: String, val title: String, val category: Sear
             else -> "Se consulta el buscador de $title y se muestran los vídeos encontrados."
         }
 
+    /** Buscadores que admiten `"frase"`, `-palabra` y operadores propios (`intitle:`, `year:`…). */
+    val understandsOperators get() = this in setOf(YOUTUBE, ARCHIVE, REDDIT)
+
     /** Fuentes que leen la web «a mano» y pueden romperse si el sitio cambia. */
     val isScraped get() = this in setOf(XVIDEOS, XNXX, XHAMSTER, PORNHUB, YOUPORN, REDDIT, TNAFLIX, PORNTREX, YOUJIZZ, THISVID)
 

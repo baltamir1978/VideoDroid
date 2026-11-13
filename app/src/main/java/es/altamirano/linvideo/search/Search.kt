@@ -20,7 +20,9 @@ data class FederatedResults(
  */
 object Search {
     fun search(query: String, source: SearchSource, limit: Int = 24, page: Int = 1): List<SearchResult> {
-        val q = query.trim()
+        // Las comillas y los «-palabra» sólo viajan a las webs que los entienden; a las demás les
+        // estropean la búsqueda, y de todos modos se aplican después en el móvil (`Refine`).
+        val q = if (source.understandsOperators) query.trim() else Refine.parse(query).plain
         if (q.isEmpty()) return emptyList()
         val p = maxOf(1, page)
         val found = when (source) {

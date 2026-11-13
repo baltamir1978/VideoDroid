@@ -28,6 +28,9 @@ Expressive**, con los colores del fondo de pantalla. Lo que queda por probar est
 - **Buscador**: YouTube, Dailymotion, PeerTube, Archive.org, Reddit, SoundCloud, Mixcloud y doce
   webs para adultos. Una web, una categoría o todas, con los resultados mezclados por rondas.
   Miniaturas, duración, visitas y **vista previa** sin descargar.
+- **Afinar** los resultados: `"frase exacta"`, `-palabra` para excluir, «Todas las palabras» (en
+  el título o el autor), duración corta / media / larga y orden por visitas o duración. Se
+  aplica en el móvil a lo ya cargado, así que funciona igual en todas las webs.
 - Nombres de archivo limpios (sin identificador, emojis, «Official Video»…), metadatos,
   subtítulos, límite de velocidad, `cookies.txt` y opciones extra de yt-dlp.
 - yt-dlp se **actualiza solo** una vez al día, o a mano desde Ajustes.

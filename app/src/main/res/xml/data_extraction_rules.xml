@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Qué sale del móvil en una copia de seguridad (Seedvault en GrapheneOS) o al pasar a otro móvil:
+  los ajustes y la cola pendiente. El cookies.txt importado (sesiones iniciadas) va en
+  `noBackupFilesDir`, que queda fuera siempre, igual que las cachés.
+-->
+<data-extraction-rules>
+    <cloud-backup>
+        <include domain="file" path="." />
+        <exclude domain="file" path="cookies.txt" />
+    </cloud-backup>
+    <device-transfer>
+        <include domain="file" path="." />
+        <exclude domain="file" path="cookies.txt" />
+    </device-transfer>
+</data-extraction-rules>

@@ -7,7 +7,7 @@ Versión para Android de [LinVideo](https://github.com/baltamir1978/LinVideo), l
 es un port línea a línea: se escribe en Kotlin con LinVideo como especificación, mismos
 comportamientos y mismos textos. El plan está en `LinVideo-Android.md`.
 
-**Estado: 0.2.0** (11-nov-2026): probada en un Pixel con Android 17. Descargas de YouTube y
+**Estado: 0.2.1** (13-nov-2026; la 0.2.0, probada en un Pixel con Android 17; la 0.2.1, todavía no). Descargas de YouTube y
 búsquedas (también la de YouTube y las de adultos) funcionando. Interfaz en **Material 3
 Expressive**, con los colores del fondo de pantalla. Lo que queda por probar está en `CLAUDE.md`.
 
@@ -22,7 +22,8 @@ Expressive**, con los colores del fondo de pantalla. Lo que queda por probar est
 - Si la app se cierra a medias, al volver ofrece **recuperar** lo pendiente, con una casilla por
   descarga. Lo que se cancela se reanuda donde se quedó.
 - **Compartir → LinVideo** desde cualquier app, y enlaces `linvideo:https://…`. Entra en la cola
-  con el tipo por defecto, y desde la notificación se puede cambiar.
+  con el tipo por defecto, y desde la notificación se puede cambiar. Un enlace `linvideo:` (que
+  puede venir de cualquier página web) pregunta antes de descargar.
 - Aviso al volver a la app con un **enlace copiado**.
 - **Buscador**: YouTube, Dailymotion, PeerTube, Archive.org, Reddit, SoundCloud, Mixcloud y doce
   webs para adultos. Una web, una categoría o todas, con los resultados mezclados por rondas.
@@ -35,16 +36,17 @@ Expressive**, con los colores del fondo de pantalla. Lo que queda por probar est
 
 ## Compilar
 
-Android 11 o posterior, arm64. Con el JDK 17 y el SDK 37 (AGP 9.5, Gradle 9.9, Kotlin 2.3; la
+Android 12 o posterior, arm64. Con el JDK 17 y el SDK 37 (AGP 9.5, Gradle 9.9, Kotlin 2.4; la
 interfaz usa material3 1.5, que pide compileSdk 37):
 
 ```sh
-./gradlew testDebugUnitTest assembleRelease
+./gradlew testDebugUnitTest lintDebug assembleRelease
 adb install -r app/build/outputs/apk/release/app-release.apk
 ```
 
 La release se firma con una clave que vive fuera del repositorio (ver `CLAUDE.md`); sin ella sale
-sin firmar. `Tools/probar-ytdlp.sh` prueba los argumentos de yt-dlp en el ordenador, sin móvil.
+sin firmar. En cada push, GitHub Actions pasa las pruebas y el lint
+(`.github/workflows/android.yml`). `Tools/probar-ytdlp.sh` prueba los argumentos de yt-dlp en el ordenador, sin móvil.
 
 ## Aviso
 

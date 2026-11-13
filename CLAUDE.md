@@ -8,7 +8,27 @@ está en `LinVideo-Android.md`. «VideoDroid» es la carpeta; **en el móvil se 
 La especificación es el código de LinVideo: mismo comportamiento y mismos textos, adaptados a
 Android. Ante cualquier duda, leer el módulo de Python equivalente (tabla del plan, §3).
 
-## Estado (11-nov-2026)
+## Estado (13-nov-2026)
+
+**0.2.1 (13-nov-2026), revisada en el servidor (`plex`), sin móvil y sin la clave de firma: no hay
+APK de esta versión.** Hay que compilarla y firmarla en el portátil (`git pull` antes).
+- **Un enlace `linvideo:` pregunta antes de descargar** (`ShareActivity`): el filtro es
+  `BROWSABLE`, así que cualquier página web podía encolar una descarga sin que nadie la pidiera.
+  «Compartir → LinVideo» sigue entrando directo. El diálogo es de Android, no de Compose: la
+  actividad es translúcida y sin pantalla.
+- **El `cookies.txt` importado va a `noBackupFilesDir`** (`LinVideoApp.cookiesFile`): son sesiones
+  iniciadas y entraban en las copias de seguridad. Al arrancar se mueve el de la 0.2.0, y si los
+  ajustes apuntan a un archivo que ya no está, se quita. Reglas de copia en
+  `res/xml/data_extraction_rules.xml`.
+- **`minSdk` 31** (era 30): `dynamicDarkColorScheme` no existe en Android 11 y la app se cerraba
+  al abrir; era además el único error de lint.
+- Dependencias a la par que los demás `*Droid`: Kotlin 2.4.21, Media3 1.11.1, OkHttp 5.5.1,
+  lifecycle 2.11, coroutines 1.11, serialization 1.13, DataStore 1.3. material3 sigue en
+  1.5.0-rc01 (no hay 1.5.0 estable) y youtubedl-android en 0.18.1 (la última).
+- **CI** en GitHub Actions (`.github/workflows/android.yml`): pruebas, lint y APK de depuración
+  en cada push. `./gradlew testDebugUnitTest lintDebug` pasa (129 pruebas, 0 errores de lint).
+- Sin probar en el móvil: el diálogo del enlace, la mudanza de las cookies y la vista previa
+  con el Media3 nuevo.
 
 **0.2.0, probada por primera vez en el móvil** (Pixel 11 Pro, Android 17, por `adb`). APK firmado en
 `~/Documentos/LinVideo-0.2.0.apk`.
@@ -88,8 +108,8 @@ Entorno en `~/Android` (el de los demás `*Droid`, más la plataforma 37 y build
 `app/build/outputs/apk/release/app-release.apk` y `adb install -r …`.
 
 **Firma de release**: `~/.android/claves/linvideo-release.jks`, datos en
-`~/.android/claves/linvideo-release.properties` (lo lee `app/build.gradle.kts`). Fuera del repo y
-sin copia: **si se pierde, no se puede actualizar la app instalada**. Huella SHA-256:
+`~/.android/claves/linvideo-release.properties` (lo lee `app/build.gradle.kts`). Fuera del repo,
+**sólo en el portátil** y sin copia (en `plex` no está: allí la release sale sin firmar): **si se pierde, no se puede actualizar la app instalada**. Huella SHA-256:
 `4F:B1:6E:E7:B7:67:70:D8:6F:11:0B:FB:5F:C4:4C:18:E1:BC:72:50:7F:97:EE:83:48:A7:71:88:7F:56:A5:36`.
 
 **Al diagnosticar una web de búsqueda «rota»**: probar antes con una búsqueda corriente

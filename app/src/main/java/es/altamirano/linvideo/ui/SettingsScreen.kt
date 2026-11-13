@@ -87,7 +87,7 @@ fun SettingsScreen() {
         scope.launch {
             val ok = withContext(Dispatchers.IO) {
                 runCatching {
-                    val target = File(context.filesDir, "cookies.txt")
+                    val target = es.altamirano.linvideo.LinVideoApp.cookiesFile(context)
                     context.contentResolver.openInputStream(uri)!!.use { input -> target.outputStream().use { input.copyTo(it) } }
                     target.absolutePath
                 }.getOrNull()

@@ -14,8 +14,8 @@ android {
         applicationId = "es.altamirano.linvideo"
         minSdk = 31          // Android 12: los colores del fondo de pantalla (Material You), como los demás *Droid
         targetSdk = 36
-        versionCode = 4
-        versionName = "0.2.2"
+        versionCode = 5
+        versionName = "0.2.3"
         // yt-dlp, Python y FFmpeg van como binarios nativos: sólo arm64 para que el APK no pese el doble.
         ndk { abiFilters += "arm64-v8a" }
     }
@@ -51,6 +51,7 @@ android {
 }
 
 dependencies {
+    implementation("es.altamirano:common")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)

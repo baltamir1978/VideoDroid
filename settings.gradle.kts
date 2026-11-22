@@ -14,3 +14,7 @@ dependencyResolutionManagement {
 }
 rootProject.name = "VideoDroid"
 include(":app")
+
+// Lo que comparten las apps (tema Material 3 Expressive, modo escritorio): el repositorio
+// droid-common, clonado en la carpeta de al lado. Gradle sustituye `es.altamirano:common` por él.
+includeBuild("../droid-common")

@@ -12,9 +12,7 @@ import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenu
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.MaterialExpressiveTheme
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MotionScheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -31,13 +29,19 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import es.altamirano.common.ui.AppTheme
+import es.altamirano.common.ui.withBrandSelection
 
 /** Material 3 Expressive con los colores del fondo de pantalla (Material You). */
 @Composable
 fun LinVideoTheme(content: @Composable () -> Unit) {
     val context = LocalContext.current
-    val colors = if (isSystemInDarkTheme()) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-    MaterialExpressiveTheme(colorScheme = colors, motionScheme = MotionScheme.expressive(), content = content)
+    val dark = isSystemInDarkTheme()
+    // Con algunos fondos de pantalla la paleta sale gris y lo seleccionado no se distingue: va en un
+    // azul clarito, el del icono (droid-common, como todas las apps).
+    val colors = if (dark) dynamicDarkColorScheme(context).withBrandSelection(Color(0xFF9CB8F0), dark = true)
+        else dynamicLightColorScheme(context).withBrandSelection(Color(0xFF2B5BA8), dark = false)
+    AppTheme(colors, content = content)
 }
 
 /** Forma de los campos rellenos: esquinas redondeadas, como en Expressive. */

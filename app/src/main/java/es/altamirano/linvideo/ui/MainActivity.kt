@@ -38,6 +38,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import es.altamirano.linvideo.LinVideoApp
 import es.altamirano.linvideo.R
 import es.altamirano.linvideo.engine.Links.extractUrls
+import androidx.compose.ui.graphics.Color
+import es.altamirano.common.ui.GlassBarShape
+import es.altamirano.common.ui.glass
 
 enum class Tab(val title: String, val icon: Int) {
     DOWNLOAD("Descargar", R.drawable.ic_tab_download),
@@ -99,7 +102,8 @@ private fun App(downloads: DownloadViewModel, searches: SearchViewModel) {
             )
         },
         bottomBar = {
-            ShortNavigationBar {
+            // Cristal de Expressive, como todas las apps (droid-common).
+            ShortNavigationBar(Modifier.glass(GlassBarShape, alpha = 0.88f), containerColor = Color.Transparent) {
                 Tab.entries.forEach { t ->
                     ShortNavigationBarItem(
                         selected = tab == t,

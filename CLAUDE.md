@@ -8,7 +8,9 @@ está en `LinVideo-Android.md`. «VideoDroid» es la carpeta; **en el móvil se 
 La especificación es el código de LinVideo: mismo comportamiento y mismos textos, adaptados a
 Android. Ante cualquier duda, leer el módulo de Python equivalente (tabla del plan, §3).
 
-## Estado (13-nov-2026)
+## Estado (22-nov-2026)
+
+**0.2.3 (22-nov-2026): aspecto Material 3 Expressive, como GpsDroid.** Lo pidió Bruno («dale una vuelta al aspecto del resto de apps con este lenguaje de diseño; lo seleccionado debería estar en un verde clarito, no en el mismo gris»). El tema sale de `droid-common` (`ui/Expressive.kt`: `AppTheme` = `MaterialExpressiveTheme` + `MotionScheme.expressive()` + esquinas grandes, y `withBrandSelection`, que pone `secondaryContainer` —chips, indicador de la barra, botones segmentados— en un tono clarito del color de la app). material3 1.5.0-rc01 en todas. **Ahora usa `droid-common`** (`includeBuild` y el CI lo clona al lado). Sigue con los colores del sistema, pero lo seleccionado en el azul clarito del icono (con algunos fondos de pantalla salía gris); la `ShortNavigationBar` pasa a cristal. APK en `~/Documentos/LinVideo-0.2.3.apk`. **Sin probar en el móvil.**
 
 **0.2.2 (13-nov-2026): afinar la búsqueda.** Hecha en el servidor (`plex`), como la 0.2.1, sin la clave de
 firma. El mismo día se compiló y firmó en el portátil (pasan pruebas y lint): APK en

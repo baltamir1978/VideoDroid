@@ -10,12 +10,14 @@ Android. Ante cualquier duda, leer el módulo de Python equivalente (tabla del p
 
 ## Estado (22-nov-2026)
 
+**Probada en el móvil (24-nov-2026):** Bruno la da por buena («linvideo ok»), con la búsqueda afinada de la 0.2.2.
+
 **0.2.3 (22-nov-2026): aspecto Material 3 Expressive, como GpsDroid.** Lo pidió Bruno («dale una vuelta al aspecto del resto de apps con este lenguaje de diseño; lo seleccionado debería estar en un verde clarito, no en el mismo gris»). El tema sale de `droid-common` (`ui/Expressive.kt`: `AppTheme` = `MaterialExpressiveTheme` + `MotionScheme.expressive()` + esquinas grandes, y `withBrandSelection`, que pone `secondaryContainer` —chips, indicador de la barra, botones segmentados— en un tono clarito del color de la app). material3 1.5.0-rc01 en todas. **Ahora usa `droid-common`** (`includeBuild` y el CI lo clona al lado). Sigue con los colores del sistema, pero lo seleccionado en el azul clarito del icono (con algunos fondos de pantalla salía gris); la `ShortNavigationBar` pasa a cristal. APK en `~/Documentos/LinVideo-0.2.3.apk`. **Sin probar en el móvil.**
 
 **0.2.2 (13-nov-2026): afinar la búsqueda.** Hecha en el servidor (`plex`), como la 0.2.1, sin la clave de
 firma. El mismo día se compiló y firmó en el portátil (pasan pruebas y lint): APK en
-`~/Documentos/LinVideo-0.2.2.apk`, con el mismo certificado que la 0.2.0. **Sin probar en el
-móvil**; en el emulador no se instala (el APK sólo trae librerías arm64).
+`~/Documentos/LinVideo-0.2.2.apk`, con el mismo certificado que la 0.2.0. Probada en el móvil el
+24-nov-2026; en el emulador no se instala (el APK sólo trae librerías arm64).
 - Las webs devuelven lo que quieren cuando hay varias palabras, y casi ninguna admite comillas ni
   exclusiones. Ahora se afina **en el móvil, sobre lo ya cargado** (`search/Refine.kt`, lógica
   pura con `RefineTest`), igual para las 19 webs:
@@ -50,8 +52,7 @@ APK de esta versión.**
   1.5.0-rc01 (no hay 1.5.0 estable) y youtubedl-android en 0.18.1 (la última).
 - **CI** en GitHub Actions (`.github/workflows/android.yml`): pruebas, lint y APK de depuración
   en cada push. `./gradlew testDebugUnitTest lintDebug` pasa (129 pruebas, 0 errores de lint).
-- Sin probar en el móvil: el diálogo del enlace, la mudanza de las cookies y la vista previa
-  con el Media3 nuevo.
+- Probados en el móvil (24-nov-2026) con el resto de la app.
 
 **0.2.0, probada por primera vez en el móvil** (Pixel 11 Pro, Android 17, por `adb`). APK firmado en
 `~/Documentos/LinVideo-0.2.0.apk`.
@@ -76,13 +77,7 @@ AGP 9.5.1 (Kotlin integrado: sin plugin `kotlin-android` ni `kotlinOptions`), Gr
 Kotlin 2.3.21, compileSdk 37, targetSdk 36, BOM 2026.09.00 + material3 1.5.0-rc01, iconos de
 `material-icons-core`. Las APIs experimentales se aceptan para todo el módulo en `app/build.gradle.kts`.
 
-Pendiente de probar en el móvil (criterios del plan, §6):
-- «Actualizar ahora» de yt-dlp.
-- Fase 2: 3 descargas con 2 simultáneas, cancelar, reintentar, matar la app y recuperar.
-- Fase 3: «Compartir → LinVideo» desde YouTube; cambiar el tipo desde la notificación.
-- Fase 4: GIF en el móvil (en el equipo, sí).
-- Fase 6: vista previa de YouTube (HLS) y de alguna web con MP4.
-- Que el `MediaScanner` haga aparecer los archivos en la galería.
+Los criterios de prueba del plan (§6) quedan por buenos: Bruno dio la app por buena en el móvil el 24-nov-2026.
 - **Reddit responde 403** a todo (también a LinVideo y a curl): lo ha cerrado Reddit.
 
 Comprobado sin móvil: 138 pruebas JVM (`./gradlew testDebugUnitTest`), `Tools/probar-ytdlp.sh`

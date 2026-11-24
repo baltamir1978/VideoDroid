@@ -129,7 +129,7 @@ Entorno en `~/Android` (el de los demás `*Droid`, más la plataforma 37 y build
 
 **Firma de release**: `~/.android/claves/linvideo-release.jks`, datos en
 `~/.android/claves/linvideo-release.properties` (lo lee `app/build.gradle.kts`). Fuera del repo,
-**sólo en el portátil**, con copia en `~/Documentos/ClavesAndroid` desde el 13-nov-2026 (en `plex` no está instalada: allí la release sale sin firmar): **si se pierde, no se puede actualizar la app instalada**. Huella SHA-256:
+**sólo en el portátil**, con copia en `~/Documentos/Software/ClavesAndroid` desde el 13-nov-2026 (en `plex` no está instalada: allí la release sale sin firmar): **si se pierde, no se puede actualizar la app instalada**. Huella SHA-256:
 `4F:B1:6E:E7:B7:67:70:D8:6F:11:0B:FB:5F:C4:4C:18:E1:BC:72:50:7F:97:EE:83:48:A7:71:88:7F:56:A5:36`.
 
 **Al diagnosticar una web de búsqueda «rota»**: probar antes con una búsqueda corriente

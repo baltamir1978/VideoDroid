@@ -24,8 +24,8 @@ firma con la misma clave (`linvideo-release`). Lo que cambia lo decide `model/Ed
   `testDebugUnitTest lintDebug` sigan siendo las órdenes de siempre; el CI compila las dos.
 - Ojo: Gradle compila en el mismo `app-release.apk` las dos; copiar uno antes de sacar el otro.
 - Las pruebas pasan en las dos ediciones (las que usan enlaces inventados fijan `onlyYouTube = false`).
-APKs en `~/Documentos/Software/LinVideo-0.2.4.apk` y `YouAudio-0.2.4.apk`. **Sin probar en el
-móvil** (en el emulador no se instala: sólo arm64).
+APKs en `~/Documentos/Software/LinVideo-0.2.4.apk` y `YouAudio-0.2.4.apk`. **Probada en el
+móvil (25-nov-2026):** Bruno confirma que YouAudio «ya funciona y bien».
 
 **Probada en el móvil (24-nov-2026):** Bruno la da por buena («linvideo ok»), con la búsqueda afinada de la 0.2.2.
 

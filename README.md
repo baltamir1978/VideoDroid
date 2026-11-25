@@ -7,7 +7,7 @@ Versión para Android de [LinVideo](https://github.com/baltamir1978/LinVideo), l
 es un port línea a línea: se escribe en Kotlin con LinVideo como especificación, mismos
 comportamientos y mismos textos. El plan está en `LinVideo-Android.md`.
 
-**Estado: 0.2.3** (22-nov-2026; la 0.2.0, probada en un Pixel con Android 17; de la 0.2.1 en adelante, todavía no). Descargas de YouTube y
+**Estado: 0.2.4** (25-nov-2026; probada en un Pixel con Android 17 hasta la 0.2.3; la edición YouTube de la 0.2.4, todavía no). Descargas de YouTube y
 búsquedas (también la de YouTube y las de adultos) funcionando. Interfaz en **Material 3
 Expressive**, con los colores del fondo de pantalla. Lo que queda por probar está en `CLAUDE.md`.
 
@@ -46,6 +46,10 @@ interfaz usa material3 1.5, que pide compileSdk 37):
 ./gradlew testDebugUnitTest lintDebug assembleRelease
 adb install -r app/build/outputs/apk/release/app-release.apk
 ```
+
+**Edición «sólo YouTube» (LinVideo YT)**: `./gradlew assembleRelease -Pedicion=youtube`. Es la
+misma app, pero sólo busca en YouTube y sólo acepta enlaces de YouTube. Lleva otro paquete
+(`es.altamirano.linvideo.yt`), así que se puede instalar junto a LinVideo.
 
 La release se firma con una clave que vive fuera del repositorio (ver `CLAUDE.md`); sin ella sale
 sin firmar. En cada push, GitHub Actions pasa las pruebas y el lint

@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import es.altamirano.linvideo.engine.Engine
 import es.altamirano.linvideo.engine.Links.extractUrls
+import es.altamirano.linvideo.model.Edition
 import es.altamirano.linvideo.model.MediaKind
 import es.altamirano.linvideo.model.VideoResolution
 import es.altamirano.linvideo.queue.ItemSnapshot
@@ -138,7 +139,7 @@ fun DownloadScreen(model: DownloadViewModel, onFormats: () -> Unit) {
                 }
                 Button(
                     onClick = {
-                        if (model.download() == 0) Toast.makeText(context, "No hay ningún enlace válido.", Toast.LENGTH_SHORT).show()
+                        if (model.download() == 0) Toast.makeText(context, if (Edition.ONLY_YOUTUBE) "Sólo se pueden descargar enlaces de YouTube." else "No hay ningún enlace válido.", Toast.LENGTH_SHORT).show()
                     },
                     enabled = form.url.isNotBlank(),
                     shapes = ButtonDefaults.shapes(),

@@ -6,16 +6,22 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
 }
 
+// `-Pedicion=youtube` saca «LinVideo YT»: la misma app con sólo YouTube, hecha para regalar. Otro
+// paquete, para que conviva con LinVideo en el mismo móvil.
+val soloYouTube = providers.gradleProperty("edicion").orNull == "youtube"
+
 android {
     namespace = "es.altamirano.linvideo"
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "es.altamirano.linvideo"
+        applicationId = if (soloYouTube) "es.altamirano.linvideo.yt" else "es.altamirano.linvideo"
+        buildConfigField("boolean", "SOLO_YOUTUBE", soloYouTube.toString())
+        resValue("string", "app_name", if (soloYouTube) "LinVideo YT" else "LinVideo")
         minSdk = 31          // Android 12: los colores del fondo de pantalla (Material You), como los demás *Droid
         targetSdk = 36
-        versionCode = 5
-        versionName = "0.2.3"
+        versionCode = 6
+        versionName = "0.2.4"
         // yt-dlp, Python y FFmpeg van como binarios nativos: sólo arm64 para que el APK no pese el doble.
         ndk { abiFilters += "arm64-v8a" }
     }
@@ -47,7 +53,11 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    buildFeatures { compose = true }
+    buildFeatures {
+        compose = true
+        buildConfig = true
+        resValues = true
+    }
 }
 
 dependencies {

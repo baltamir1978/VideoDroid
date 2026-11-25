@@ -38,6 +38,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import es.altamirano.linvideo.LinVideoApp
 import es.altamirano.linvideo.R
 import es.altamirano.linvideo.engine.Links.extractUrls
+import es.altamirano.linvideo.model.Edition
 import androidx.compose.ui.graphics.Color
 import es.altamirano.common.ui.GlassBarShape
 import es.altamirano.common.ui.glass
@@ -93,7 +94,7 @@ private fun App(downloads: DownloadViewModel, searches: SearchViewModel) {
         modifier = Modifier.nestedScroll(bar.nestedScrollConnection),
         topBar = {
             LargeFlexibleTopAppBar(
-                title = { Text(if (tab == Tab.DOWNLOAD) "LinVideo" else tab.title) },
+                title = { Text(if (tab == Tab.DOWNLOAD) Edition.NAME else tab.title) },
                 subtitle = when {
                     tab == Tab.DOWNLOAD && summary.active -> { { Text("Descargando ${summary.done} de ${summary.total}") } }
                     else -> null

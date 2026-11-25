@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.widget.Toast
 import es.altamirano.linvideo.LinVideoApp
 import es.altamirano.linvideo.engine.Links
+import es.altamirano.linvideo.model.Edition
 import es.altamirano.linvideo.service.SharedNotification
 
 /**
@@ -26,14 +27,15 @@ class ShareActivity : Activity() {
             else -> emptyList()
         }
         if (urls.isEmpty()) {
-            Toast.makeText(this, "Lo compartido no tiene ningún enlace.", Toast.LENGTH_SHORT).show()
+            val why = if (Edition.ONLY_YOUTUBE) "Lo compartido no es un enlace de YouTube." else "Lo compartido no tiene ningún enlace."
+            Toast.makeText(this, why, Toast.LENGTH_SHORT).show()
             finish()
         } else if (intent?.action == Intent.ACTION_VIEW) {
             // Un `linvideo:` puede venir de cualquier página web, sin que nadie lo haya pedido:
             // antes de descargar nada, se pregunta. «Compartir» no, que lo elige quien comparte.
             val night = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
             AlertDialog.Builder(this, if (night) android.R.style.Theme_DeviceDefault_Dialog_Alert else android.R.style.Theme_DeviceDefault_Light_Dialog_Alert)
-                .setTitle("¿Descargar con LinVideo?")
+                .setTitle("¿Descargar con ${Edition.NAME}?")
                 .setMessage(urls.first())
                 .setPositiveButton("Descargar") { _, _ -> enqueue(urls) }
                 .setNegativeButton("Cancelar", null)
@@ -52,7 +54,7 @@ class ShareActivity : Activity() {
             val kind = entries.first().kind.title
             Toast.makeText(
                 this,
-                if (entries.size == 1) "Añadido a LinVideo: $kind" else "${entries.size} enlaces añadidos: $kind",
+                if (entries.size == 1) "Añadido a ${Edition.NAME}: $kind" else "${entries.size} enlaces añadidos: $kind",
                 Toast.LENGTH_SHORT,
             ).show()
             entries.forEach { SharedNotification.show(this, it) }

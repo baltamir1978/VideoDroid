@@ -112,7 +112,8 @@ fun SearchScreen(model: SearchViewModel, onPreview: (SearchResult) -> Unit) {
                     modifier = Modifier.fillMaxWidth(),
                 )
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Dropdown(state.scope, SCOPES, ::scopeLabel, model::setScope, Modifier.weight(1f), title = "Dónde")
+                    // Con una sola web (edición YouTube) no hay nada que elegir.
+                    if (SCOPES.size > 1) Dropdown(state.scope, SCOPES, ::scopeLabel, model::setScope, Modifier.weight(1f), title = "Dónde")
                     Dropdown(
                         state.refinement.order, SearchOrder.entries, { it.title },
                         { model.setRefinement(state.refinement.copy(order = it)) }, Modifier.weight(1f), title = "Orden",

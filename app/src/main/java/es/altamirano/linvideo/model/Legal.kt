@@ -2,10 +2,10 @@ package es.altamirano.linvideo.model
 
 /** Textos legales (`legal.py`), adaptados a Android donde hablaban de Linux. */
 object Legal {
-    const val SUMMARY = "LinVideo es una interfaz para yt-dlp y FFmpeg pensada para uso personal. " +
+    val SUMMARY = "${Edition.NAME} es una interfaz para yt-dlp y FFmpeg pensada para uso personal. " +
         "Quien la usa es responsable de lo que descarga."
 
-    val POINTS = listOf(
+    val POINTS = listOfNotNull(
         "Derechos de autor" to
             "Descargar obras protegidas sin autorización puede infringir los derechos de sus " +
             "titulares. Que una herramienta permita hacerlo no significa que sea legal en tu caso: " +
@@ -14,7 +14,7 @@ object Legal {
             "Varias plataformas —YouTube entre ellas— prohíben en sus condiciones descargar " +
             "contenido salvo con las funciones que ellas mismas ofrecen. Usar esta app puede " +
             "incumplir ese contrato con la plataforma, aunque no haya infracción de copyright.",
-        "Contenido para adultos" to
+        if (Edition.ONLY_YOUTUBE) null else "Contenido para adultos" to
             "Las webs para adultos incluidas sólo deben usarse por personas mayores de edad y donde " +
             "ese contenido sea legal. Queda fuera de toda justificación el material ilegal o " +
             "publicado sin el consentimiento de quien aparece.",

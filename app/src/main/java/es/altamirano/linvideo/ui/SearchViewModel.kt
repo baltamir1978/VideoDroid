@@ -8,6 +8,7 @@ import es.altamirano.linvideo.search.FederatedResults
 import es.altamirano.linvideo.search.Refine
 import es.altamirano.linvideo.search.Refinement
 import es.altamirano.linvideo.search.Search
+import es.altamirano.linvideo.model.Edition
 import es.altamirano.linvideo.search.SearchCategory
 import es.altamirano.linvideo.search.SearchResult
 import es.altamirano.linvideo.search.SearchScope
@@ -21,9 +22,10 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-/** Lo que se ofrece para elegir dónde buscar, en el orden de LinVideo. */
+/** Lo que se ofrece para elegir dónde buscar, en el orden de LinVideo. En la edición YouTube, sólo YouTube. */
 val SCOPES: List<SearchScope> = buildList {
     add(SearchScope(source = SearchSource.YOUTUBE))
+    if (Edition.ONLY_YOUTUBE) return@buildList
     add(SearchScope.everywhere())
     SearchCategory.entries.forEach { add(SearchScope(category = it)) }
     SearchSource.entries.filter { it != SearchSource.YOUTUBE }.forEach { add(SearchScope(source = it)) }

@@ -10,21 +10,21 @@ Android. Ante cualquier duda, leer el módulo de Python equivalente (tabla del p
 
 ## Estado (25-nov-2026)
 
-**0.2.4 (25-nov-2026): edición «sólo YouTube» (LinVideo YT).** La pidió Bruno para una amiga
+**0.2.4 (25-nov-2026): edición «sólo YouTube» (YouAudio).** La pidió Bruno para una amiga
 («que solo puedas elegir de YouTube»). Es el mismo código: `./gradlew assembleRelease -Pedicion=youtube`
-saca `es.altamirano.linvideo.yt` («LinVideo YT»), que convive con LinVideo en el mismo móvil y se
+saca `es.altamirano.youaudio` («YouAudio», nombre que eligió Bruno), que convive con LinVideo en el mismo móvil y se
 firma con la misma clave (`linvideo-release`). Lo que cambia lo decide `model/Edition.kt`
 (`BuildConfig.SOLO_YOUTUBE`):
 - La búsqueda sólo tiene YouTube y no sale el desplegable «Dónde».
 - Sólo cuentan como enlace los de YouTube (`Links.isYouTube`: youtube.com y subdominios —music,
   m, www—, youtu.be, youtube-nocookie.com), así que el portapapeles, el campo Enlace, «Compartir»
   y `linvideo:` ignoran lo demás y lo dicen («Sólo se pueden descargar enlaces de YouTube»).
-- El aviso legal pierde el punto de las webs para adultos; título y avisos dicen «LinVideo YT».
+- El aviso legal pierde el punto de las webs para adultos; título y avisos dicen «YouAudio», y descarga en `Download/YouAudio` (`Storage.DEFAULT_FOLDER` es el nombre de la app).
 - Sin la propiedad sale LinVideo igual que antes. Se usa una propiedad y no *flavors* para que
   `testDebugUnitTest lintDebug` sigan siendo las órdenes de siempre; el CI compila las dos.
 - Ojo: Gradle compila en el mismo `app-release.apk` las dos; copiar uno antes de sacar el otro.
 - Las pruebas pasan en las dos ediciones (las que usan enlaces inventados fijan `onlyYouTube = false`).
-APKs en `~/Documentos/Software/LinVideo-0.2.4.apk` y `LinVideoYT-0.2.4.apk`. **Sin probar en el
+APKs en `~/Documentos/Software/LinVideo-0.2.4.apk` y `YouAudio-0.2.4.apk`. **Sin probar en el
 móvil** (en el emulador no se instala: sólo arm64).
 
 **Probada en el móvil (24-nov-2026):** Bruno la da por buena («linvideo ok»), con la búsqueda afinada de la 0.2.2.

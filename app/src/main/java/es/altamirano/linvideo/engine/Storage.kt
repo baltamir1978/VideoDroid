@@ -1,12 +1,13 @@
 package es.altamirano.linvideo.engine
 
 import android.os.Environment
+import es.altamirano.linvideo.model.Edition
 import java.io.File
 
 /** Dónde se guardan las descargas. */
 object Storage {
-    /** Subcarpeta de `Download/` por defecto. Con almacenamiento acotado se escribe sin permisos. */
-    const val DEFAULT_FOLDER = "LinVideo"
+    /** Subcarpeta de `Download/` por defecto (el nombre de la app). Con almacenamiento acotado se escribe sin permisos. */
+    val DEFAULT_FOLDER = Edition.NAME
 
 
     fun downloadDirectory(folder: String = DEFAULT_FOLDER): File =

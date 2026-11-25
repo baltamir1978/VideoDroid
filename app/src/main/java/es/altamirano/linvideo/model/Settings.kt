@@ -9,7 +9,7 @@ import java.util.UUID
 
 /**
  * Ajustes guardados entre sesiones (`settings.py`). Mismos campos y valores por defecto.
- * [destination] es una subcarpeta de `Download/`; vacía, `Download/LinVideo`.
+ * [destination] es una subcarpeta de `Download/`; vacía, `Download/<nombre de la app>` (LinVideo o YouAudio).
  */
 data class Settings(
     val kind: MediaKind = MediaKind.VIDEO_MAX,

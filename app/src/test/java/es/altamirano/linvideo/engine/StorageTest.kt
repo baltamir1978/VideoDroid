@@ -5,13 +5,13 @@ import org.junit.Test
 
 class StorageTest {
     @Test fun emptyFolderFallsBackToDefault() {
-        assertEquals("LinVideo", Storage.cleanFolder(""))
-        assertEquals("LinVideo", Storage.cleanFolder("  /  "))
+        assertEquals(Storage.DEFAULT_FOLDER, Storage.cleanFolder(""))
+        assertEquals(Storage.DEFAULT_FOLDER, Storage.cleanFolder("  /  "))
     }
 
     @Test fun folderCannotEscapeDownloads() {
         assertEquals("a/b", Storage.cleanFolder("../a/./b/.."))
-        assertEquals("LinVideo", Storage.cleanFolder("../.."))
+        assertEquals(Storage.DEFAULT_FOLDER, Storage.cleanFolder("../.."))
     }
 
     @Test fun nestedFoldersKeepTheirShape() {

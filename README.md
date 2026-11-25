@@ -47,9 +47,9 @@ interfaz usa material3 1.5, que pide compileSdk 37):
 adb install -r app/build/outputs/apk/release/app-release.apk
 ```
 
-**Edición «sólo YouTube» (LinVideo YT)**: `./gradlew assembleRelease -Pedicion=youtube`. Es la
+**Edición «sólo YouTube» (YouAudio)**: `./gradlew assembleRelease -Pedicion=youtube`. Es la
 misma app, pero sólo busca en YouTube y sólo acepta enlaces de YouTube. Lleva otro paquete
-(`es.altamirano.linvideo.yt`), así que se puede instalar junto a LinVideo.
+(`es.altamirano.youaudio`) y guarda en `Download/YouAudio`, así que se puede instalar junto a LinVideo.
 
 La release se firma con una clave que vive fuera del repositorio (ver `CLAUDE.md`); sin ella sale
 sin firmar. En cada push, GitHub Actions pasa las pruebas y el lint

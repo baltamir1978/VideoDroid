@@ -6,7 +6,7 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
 }
 
-// `-Pedicion=youtube` saca «LinVideo YT»: la misma app con sólo YouTube, hecha para regalar. Otro
+// `-Pedicion=youtube` saca «YouAudio»: la misma app con sólo YouTube, hecha para regalar. Otro
 // paquete, para que conviva con LinVideo en el mismo móvil.
 val soloYouTube = providers.gradleProperty("edicion").orNull == "youtube"
 
@@ -15,9 +15,9 @@ android {
     compileSdk = 37
 
     defaultConfig {
-        applicationId = if (soloYouTube) "es.altamirano.linvideo.yt" else "es.altamirano.linvideo"
+        applicationId = if (soloYouTube) "es.altamirano.youaudio" else "es.altamirano.linvideo"
         buildConfigField("boolean", "SOLO_YOUTUBE", soloYouTube.toString())
-        resValue("string", "app_name", if (soloYouTube) "LinVideo YT" else "LinVideo")
+        resValue("string", "app_name", if (soloYouTube) "YouAudio" else "LinVideo")
         minSdk = 31          // Android 12: los colores del fondo de pantalla (Material You), como los demás *Droid
         targetSdk = 36
         versionCode = 6

@@ -34,7 +34,7 @@ jobs:
       - name: Pruebas, lint y APK de depuración
         working-directory: VideoDroid
         run: ./gradlew testDebugUnitTest lintDebug assembleDebug --console=plain
-      - name: Edición «sólo YouTube» (LinVideo YT)
+      - name: Edición «sólo YouTube» (YouAudio)
         working-directory: VideoDroid
         run: ./gradlew -Pedicion=youtube testDebugUnitTest lintDebug assembleDebug --console=plain
       - name: Informe de lint
